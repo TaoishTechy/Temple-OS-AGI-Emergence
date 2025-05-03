@@ -26,6 +26,7 @@ I64 social_rule_count = 0;
 
 // Initialize social agents
 U0 InitSocialAgents() {
+  MemSet(agents, 0, sizeof(SocialAgent) * MAX_AGENTS);
   for (I64 i = 0; i < MAX_AGENTS; i++) {
     agents[i].id = i;
     agents[i].social_score = 50;
@@ -53,7 +54,7 @@ U0 AddSocialRule(Bool (*condition)(), U0 (*action)()) {
 // Evaluate all social rules
 U0 EvaluateSocialRules() {
   for (I64 i = 0; i < social_rule_count; i++) {
-    if (social_rules[i].condition != NULL) {  // Null check
+    if (social_rules[i].condition != NULL) {
       if (social_rules[i].condition()) {
         if (social_rules[i].action != NULL) {
           social_rules[i].action();
@@ -94,7 +95,6 @@ U0 GetSocialResponse() {
 
 // Example condition: Check for emotional alignment
 Bool EmotionalAlignment() {
-  // Check if most agents are HAPPY (emotion = 1)
   I64 happy_count = 0;
   for (I64 i = 0; i < MAX_AGENTS; i++) {
     if (agents[i].emotion == 1) happy_count++;
@@ -114,7 +114,6 @@ U0 InitSocial() {
   InitSocialAgents();
   InitSocialRules();
   AddSocialRule(&EmotionalAlignment, &IncreaseSocialHarmony);
-  // Add more rules here as needed
 }
 
 // Main function to run the module

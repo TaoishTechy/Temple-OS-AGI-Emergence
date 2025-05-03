@@ -7,6 +7,10 @@
 
 // Output a message adaptively
 U0 Output(U8 *message, Bool visual, Bool audio) {
+  if (!message) {
+    Print("Error: Null message provided.\n");
+    return;
+  }
   if (visual && HasDisplay()) {
     Print("$$GREEN$$%s$$FG,0$$\n", message);
   }

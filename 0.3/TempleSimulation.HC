@@ -12,13 +12,12 @@ I64 last_speak_time = 0;
 
 // Initialize simulation (text-based)
 U0 InitSimulation() {
-  // Clear screen or set up initial state
   GrClear(BLACK);
+  simulation_running = TRUE;
 }
 
 // Update simulation (simple text animation)
 U0 UpdateSimulation() {
-  // Example: print moving text or simple patterns
   I64 x = RandI64 % SIMULATION_WIDTH;
   I64 y = RandI64 % SIMULATION_HEIGHT;
   GrPrint(x, y, "*");
@@ -32,7 +31,6 @@ U0 RenderSimulation() {
 // Run simulation loop
 U0 RunSimulation() {
   InitSimulation();
-  simulation_running = TRUE;
   while (simulation_running) {
     UpdateSimulation();
     RenderSimulation();
@@ -46,6 +44,10 @@ U0 RunSimulation() {
 
 // Control simulation
 U0 ControlSimulation(U8 *cmd) {
+  if (!cmd) {
+    Print("Error: Null command provided.\n");
+    return;
+  }
   if (StrCmp(cmd, "start") == 0) {
     if (!simulation_running) RunSimulation();
   } else if (StrCmp(cmd, "stop") == 0) {

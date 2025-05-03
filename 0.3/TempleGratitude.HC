@@ -6,6 +6,10 @@
 U0 ExpressGratitude() {
   if (HasKeyboard()) {
     U8 *gratitude = GetStr("Offer gratitude: ");
+    if (!gratitude) {
+      Output("Error: Failed to allocate gratitude string.", TRUE, FALSE);
+      return;
+    }
     Output("Gratitude received.", TRUE, TRUE);
     Free(gratitude);
   } else if (HasMouse() && MouseClick()) {

@@ -33,29 +33,47 @@ U0 InitSocialAgents() {
   }
 }
 
+// Initialize social rules
+U0 InitSocialRules() {
+  MemSet(social_rules, 0, sizeof(SocialRule) * MAX_SOCIAL_RULES);
+  social_rule_count = 0;
+}
+
 // Add a new social rule
 U0 AddSocialRule(Bool (*condition)(), U0 (*action)()) {
   if (social_rule_count < MAX_SOCIAL_RULES) {
     social_rules[social_rule_count].condition = condition;
     social_rules[social_rule_count].action = action;
     social_rule_count++;
+  } else {
+    Print("Warning: Max social rules reached.\n");
   }
 }
 
 // Evaluate all social rules
 U0 EvaluateSocialRules() {
   for (I64 i = 0; i < social_rule_count; i++) {
-    if (social_rules[i].condition()) {
-      social_rules[i].action();
+    if (social_rules[i].condition != NULL) {  // Null check
+      if (social_rules[i].condition()) {
+        if (social_rules[i].action != NULL) {
+          social_rules[i].action();
+        } else {
+          Print("Error: Action for rule %d is null.\n", i);
+        }
+      }
+    } else {
+      Print("Error: Condition for rule %d is null.\n", i);
     }
   }
 }
 
 // Update an agent’s social state
 U0 UpdateSocialState(I64 agent_id, I64 score) {
-  agents[agent_id].social_score = score;
-  if (agents[agent_id].social_score > 100) agents[agent_id].social_score = 100;
-  if (agents[agent_id].social_score < 0) agents[agent_id].social_score = 0;
+  if (agent_id >= 0 && agent_id < MAX_AGENTS) {
+    agents[agent_id].social_score = score;
+    if (agents[agent_id].social_score > 100) agents[agent_id].social_score = 100;
+    if (agents[agent_id].social_score < 0) agents[agent_id].social_score = 0;
+  }
 }
 
 // Generate a social response
@@ -76,7 +94,7 @@ U0 GetSocialResponse() {
 
 // Example condition: Check for emotional alignment
 Bool EmotionalAlignment() {
-  // Placeholder: Check if most agents are HAPPY (emotion = 1)
+  // Check if most agents are HAPPY (emotion = 1)
   I64 happy_count = 0;
   for (I64 i = 0; i < MAX_AGENTS; i++) {
     if (agents[i].emotion == 1) happy_count++;
@@ -94,6 +112,7 @@ U0 IncreaseSocialHarmony() {
 // Initialize the module
 U0 InitSocial() {
   InitSocialAgents();
+  InitSocialRules();
   AddSocialRule(&EmotionalAlignment, &IncreaseSocialHarmony);
   // Add more rules here as needed
 }

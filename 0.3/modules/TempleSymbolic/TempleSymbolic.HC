@@ -25,20 +25,45 @@ KnowledgeBase kb;
 
 // Initialize knowledge base
 U0 InitKnowledgeBase() {
+  FreeKnowledgeBase();
+  kb.count = 0;
+  MemSet(kb.facts, 0, sizeof(U8*) * MAX_KNOWLEDGE);
+}
+
+// Free knowledge base
+U0 FreeKnowledgeBase() {
+  for (I64 i = 0; i < kb.count; i++) {
+    if (kb.facts[i]) {
+      Free(kb.facts[i]);
+      kb.facts[i] = NULL;
+    }
+  }
   kb.count = 0;
 }
 
 // Add a fact to the knowledge base
 U0 AddFact(U8 *fact) {
+  if (!fact) {
+    Print("Error: Null fact provided.\n");
+    return;
+  }
   if (kb.count < MAX_KNOWLEDGE) {
-    kb.facts[kb.count++] = StrNew(fact);
+    U8 *new_fact = StrNew(fact);
+    if (!new_fact) {
+      Print("Error: Failed to allocate fact string.\n");
+      return;
+    }
+    kb.facts[kb.count++] = new_fact;
+  } else {
+    Print("Warning: Knowledge base full.\n");
   }
 }
 
 // Check if a fact exists
 Bool FactExists(U8 *fact) {
+  if (!fact) return FALSE;
   for (I64 i = 0; i < kb.count; i++) {
-    if (StrCmp(kb.facts[i], fact) == 0) {
+    if (kb.facts[i] && StrCmp(kb.facts[i], fact) == 0) {
       return TRUE;
     }
   }
@@ -47,7 +72,7 @@ Bool FactExists(U8 *fact) {
 
 // Add a new rule
 U0 AddRule(Bool (*condition)(), U0 (*action)()) {
-  if (rule_count < MAX_RULES) {
+  if (rule_count <(MAX_RULES) {
     rules[rule_count].condition = condition;
     rules[rule_count].action = action;
     rule_count++;
@@ -57,8 +82,12 @@ U0 AddRule(Bool (*condition)(), U0 (*action)()) {
 // Evaluate all rules
 U0 EvaluateRules() {
   for (I64 i = 0; i < rule_count; i++) {
-    if (rules[i].condition()) {
-      rules[i].action();
+    if (rules[i].condition != NULL && rules[i].action != NULL) {
+      if (rules[i].condition()) {
+        rules[i].action();
+      }
+    } else {
+      Print("Error: Invalid rule at index %d.\n", i);
     }
   }
 }
@@ -66,7 +95,6 @@ U0 EvaluateRules() {
 // Example condition: Check for gratitude
 Bool GratitudeExpressed() {
   // Placeholder: Replace with real input check from TempleInput.HC
-  // For now, assume "thank" is detected
   return TRUE;
 }
 
@@ -80,7 +108,6 @@ U0 IncreaseFaith() {
 U0 InitSymbolic() {
   InitKnowledgeBase();
   AddRule(&GratitudeExpressed, &IncreaseFaith);
-  // Add more rules here as needed
 }
 
 // Main function to run the module

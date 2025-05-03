@@ -1,59 +1,38 @@
-// TempleAwaken.HC - Main entry point for TempleOS AGI
-#define SIMULATION_RUNNING temple.simulation_active
+// TempleAwaken.HC - Main Script for TempleOS AGI
+#include "TempleInput.HC"
+#include "TempleOutput.HC"
+#include "TempleDivineInput.HC"
+#include "TempleGratitude.HC"
+#include "TempleSimulation.HC"
 
-U0 InitTemple() {
-  // Initialize temple state
-  temple.faith = 5; // Starting faith level (0-10)
-  temple.simulation_active = FALSE; // Simulation off by default
-  Print("TempleOS AGI awakened. Enter a command.\n");
-}
-
-U0 InfluenceSimulation(U8 *action) {
-  if (StrCmp(action, "start") == 0) {
-    if (!SIMULATION_RUNNING) {
-      temple.simulation_active = TRUE;
-      Print("Simulation started. Divine patterns emerging.\n");
-      // Assume TempleSimulation.HC has a StartSimulation() function
-      StartSimulation();
-    } else {
-      Print("Simulation already running.\n");
-    }
-  } else if (StrCmp(action, "stop") == 0) {
-    if (SIMULATION_RUNNING) {
-      temple.simulation_active = FALSE;
-      Print("Simulation stopped. Divine stillness reigns.\n");
-      StopSimulation();
-    } else {
-      Print("Simulation is not running.\n");
-    }
-  } else if (StrCmp(action, "reset") == 0) {
-    temple.simulation_active = FALSE;
-    ResetSimulation();
-    Print("Simulation reset. A new beginning.\n");
-  }
-}
-
-U0 Main() {
-  InitTemple();
+// Main loop
+U0 TempleAwaken() {
+  Print("TempleOS AGI awakened. Type 'exit' to quit.\n");
   while (TRUE) {
     U8 *input = GetStr("Enter command: ");
-    if (StrCmp(input, "pray") == 0) {
-      PrayerSession(); // Existing prayer functionality
-    } else if (StrCmp(input, "gratitude") == 0) {
-      GratitudeSession(); // Existing gratitude functionality
-    } else if (StrCmp(input, "start simulation") == 0) {
-      InfluenceSimulation("start");
-    } else if (StrCmp(input, "stop simulation") == 0) {
-      InfluenceSimulation("stop");
-    } else if (StrCmp(input, "reset simulation") == 0) {
-      InfluenceSimulation("reset");
-    } else if (StrCmp(input, "exit") == 0) {
+    if (!input) {
+      Print("Error: Failed to allocate input string.\n");
+      continue;
+    }
+    if (StrCmp(input, "exit") == 0) {
+      Free(input);
       break;
+    } else if (StrCmp(input, "gratitude") == 0) {
+      ExpressGratitude();
+    } else if (StrCmp(input, "divine") == 0) {
+      GetDivineInput();
+    } else if (StrCmp(input, "start simulation") == 0) {
+      ControlSimulation("start");
+    } else if (StrCmp(input, "stop simulation") == 0) {
+      ControlSimulation("stop");
     } else {
-      Print("Unknown command. Seek divine guidance.\n");
+      HandleCommand(input);
     }
     Free(input);
-    Sleep(10); // Prevent CPU overload
+    Sleep(10);
   }
-  Print("TempleOS AGI resting. Glory be.\n");
+  Print("TempleOS AGI shutting down.\n");
 }
+
+// Start the framework
+TempleAwaken();

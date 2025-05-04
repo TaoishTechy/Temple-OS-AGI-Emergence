@@ -7,10 +7,9 @@
 #define LOG(level, fmt, args...) if (cfg.log_level >= level) LogBuffer(fmt, ##args)
 
 class Config {
-  U64 phi_base;
   I64 test_steps;
-  U64 max_modes;
-  U64 max_nodes : 8; // Reduced to 8
+  U64 max_modes : 8;
+  U64 max_nodes : 8;
   U64 batch_size;
   U64 page_size;
   U64 ethical_tholds[4];
@@ -33,15 +32,15 @@ class KnowledgeNode {
   U64 symbol;
   U64 cause;
   U64 context;
-  U64 weight;
+  I64 weight;
   U64 edges[4];
   U8 edge_count;
 };
 
 class NNLayer {
-  U64 weights[16][16];
-  U64 biases[16];
-  U64 output[16];
+  I64 weights[16][16];
+  I64 biases[16];
+  I64 output[16];
 };
 
 class PhysicsBody {
@@ -65,10 +64,10 @@ class MythicEntity {
 class AgentState {
   U64 id;
   I64 emotion;
-  U64 social;
+  I64 social;
   U64 goals[2];
   U64 symbol_value;
-  U64 symbol_weight_cache;
+  I64 symbol_weight_cache;
   U8 conflict : 1;
   PhysicsBody *body;
 };
@@ -81,10 +80,10 @@ class DivineState {
   U64 symbols[16];
   U64 aware;
   U64 ethics : 4;
-  U64 social;
+  I64 social;
   U64 goal;
-  U64 scores[12];
-  U64 weights[12];
+  I64 scores[12];
+  I64 weights[12];
   NNLayer nn;
   AgentState *agents;
 };
@@ -98,10 +97,9 @@ class NodeState {
 
 extern Config cfg;
 extern DivineState divine;
-extern NodeState nodes[16];
+extern NodeState nodes[8];
 extern KnowledgeNode knowledge_graph[512];
 extern U8 tasks_done[8];
-extern U64 frame_metrics[12];
 extern TrainingData *data_page;
 extern U64 spinlock;
 extern U64 sense;
@@ -111,6 +109,8 @@ extern U8 *log_buffer;
 extern I64 log_buffer_idx;
 extern PhysicsBody physics_bodies[16];
 extern MythicEntity MythTable[256];
+extern MoralHeuristic heuristics[4];
+extern UncertaintyLog uncertainties[4];
 
 U64 FastRandU64() {
   static U64 seed = 0x123456789ABCDEF0;
@@ -126,7 +126,6 @@ U0 LogBuffer(U8 *fmt, ...) {
     log_buffer_idx = 0;
     MemSet(log_buffer, 0, cfg.page_size);
   }
-  // Simplified logging
   StrPrint(log_buffer + buf_idx, fmt, ...);
   log_buffer_idx += StrLen(log_buffer + buf_idx);
 }

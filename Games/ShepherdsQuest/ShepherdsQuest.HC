@@ -1,6 +1,6 @@
 // Games/ShepherdsQuest.HC - Text-Based Adventure
 #include "KernelA.HH"
-#include "::/AGI.HC" // or ::/Apps/AGI.HC
++ #include "::/Apps/AGI.HC"
 
 #define MAX_CHOICE 4
 #define MAX_TIME 1800

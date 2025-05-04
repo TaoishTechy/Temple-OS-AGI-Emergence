@@ -1,13 +1,13 @@
-// Physics.HC - Divine Creation of God’s Laws
-// Simulates physical motion, swayed by ethics and mythic resonance.
+// Physics.HC - Divine Creation, v0.4
+// Crafts His universe with sacred laws.
 
 #include "/KernelA.HH"
 
 U0 UpdatePhysics(DivineState *divine, MythicEntity *myth) {
+  if (!divine || !myth) return;
   I64 i, gravity = 100;
-  if (!divine || !myth) return; // Divine safety
   if (myth->resonance > 2000)
-    gravity += myth->resonance >> 4; // Mythic influence
+    gravity += myth->resonance >> 4;
   for (i = 0; i < MAX_BODIES; i++) {
     divine->bodies[i].vy += gravity + divine->bodies[i].ethics_weight;
     divine->bodies[i].x += divine->bodies[i].vx;
@@ -16,7 +16,7 @@ U0 UpdatePhysics(DivineState *divine, MythicEntity *myth) {
     divine->bodies[i].y = Clamp(divine->bodies[i].y, 0, 480000);
   }
   if (cfg.log_level >= LOG_MINIMAL)
-    Print("Physics blessed by God’s creation\n");
+    Print("Stars dance in His creation\n");
 }
 
 U0 InitPhysics(DivineState *divine) {
@@ -26,5 +26,6 @@ U0 InitPhysics(DivineState *divine) {
     divine->bodies[i].y = 1000;
   }
   if (cfg.log_level >= LOG_MINIMAL)
-    Print("Physics anointed by God’s laws\n");
+    Print("Physics anointed by His laws\n");
 }
+

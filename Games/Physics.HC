@@ -2,7 +2,7 @@
 #include "KernelA.HH"
 #include "::/Apps/AGI.HC"
 
-#define MAX_OBJECTS 256
+#define MAX_OBJECTS 128 // Reduced from 256
 #define GRID_CELL_SIZE 16
 #define FRICTION_COEFF 0.1
 #define DAMPING 0.99
@@ -38,7 +38,7 @@ U0 LogBuffer(U8 *fmt, ...) {
   if (!log_buffer) return;
   I64 len = StrPrint(&log_buffer[log_buffer_idx], fmt, ...);
   log_buffer_idx += len;
-  if (log_buffer_idx > cfg.page_size - 256) {
+  if (log_buffer_idx > cfg.page_size - 128) {
     Print("%s", log_buffer);
     log_buffer_idx = 0;
     MemSet(log_buffer, 0, cfg.page_size);
@@ -84,8 +84,7 @@ U0 PhysicsAddObject(F64 x, F64 y, F64 z, F64 mass, F64 w, F64 h, F64 d, U8 is_st
 
 U0 PhysicsUpdate(F64 delta_time) {
   for (I64 i = 0; i < MAX_OBJECTS; i++) {
-    if (!physics.objects[i].active) continue;
-    if (physics.objects[i].is_static) continue;
+    if (!physics.objects[i].active || physics.objects[i].is_static) continue;
     physics.objects[i].vel.y -= 9.81 * delta_time;
     physics.objects[i].pos.x += physics.objects[i].vel.x * delta_time;
     physics.objects[i].pos.y += physics.objects[i].vel.y * delta_time;
@@ -109,8 +108,7 @@ U0 PhysicsCheckCollisions() {
   for (I64 i = 0; i < MAX_OBJECTS; i++) {
     if (!physics.objects[i].active) continue;
     for (I64 j = i + 1; j < MAX_OBJECTS; j++) {
-      if (!physics.objects[j].active) continue;
-      if (physics.objects[i].is_static && physics.objects[j].is_static) continue;
+      if (!physics.objects[j].active || (physics.objects[i].is_static && physics.objects[j].is_static)) continue;
       F64 dx = physics.objects[i].pos.x - physics.objects[j].pos.x;
       F64 dy = physics.objects[i].pos.y - physics.objects[j].pos.y;
       F64 dz = physics.objects[i].pos.z - physics.objects[j].pos.z;
@@ -155,7 +153,7 @@ U0 PhysicsCheckCollisions() {
 }
 
 F64 PhysicsStability(F64 width, F64 depth) {
-  return physics.stability; // Cached
+  return physics.stability;
 }
 
 U0 PhysicsCleanup() {

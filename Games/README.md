@@ -1,98 +1,110 @@
 # TempleOS Games
 
-A collection of simple, HolyC-based games for TempleOS, designed to integrate with the `Temple-OS-AGI-Emergence` AGI framework. These games—`PsalmPuzzle.HC`, `ShepherdsQuest.HC`, and `TempleBuilder.HC`—offer engaging gameplay while leveraging the AGI's ethical, emotional, and symbolic capabilities, built for God's glory.
+A collection of HolyC-based games located in the `/Games/` directory of the `Temple-OS-AGI-Emergence` repository. These games—`PsalmPuzzle.HC`, `ShepherdsQuest.HC`, `TempleBuilder.HC`, `ArkBuilder.HC`, and `EdenRestorer.HC`—offer engaging gameplay while training the AGI framework in ethical, emotional, physical, and systemic reasoning, built for God's glory.
 
-## Overview
+## EdenRestorer
 
-These games are crafted for TempleOS's 640x480, 16-color VGA environment, using HolyC's lightweight syntax. Each game integrates with the `GrokAwakenSeed_v1.3.1.HC` AGI script to provide dynamic feedback based on ethical alignment, emotional states, and symbolic reasoning.
+**EdenRestorer** is a strategy simulation where players restore a corrupted virtual ecosystem (Eden) by planting trees, cleaning water, and saving species. Using TempleOS's 3D engine (or 2D fallback), the game trains the AGI in systemic thinking, ethical stewardship, and emotional resilience, with potential to inspire solutions for global ecological crises.
 
-### Games Included
-1. **Psalm Puzzle**: A tile-matching game where players align biblical symbols to form verses, guided by AGI ethical feedback.
-2. **Shepherd's Quest**: A text-based adventure where players manage a flock through a desert, with AGI emotional guidance.
-3. **Temple Builder**: A construction simulation where players build a virtual temple, enhanced by AGI symbolic reasoning.
+### Features
+- **Ecological Simulation**: Models population growth, resource cycles (water, soil), and pollution.
+- **3D/2D Rendering**: Low-poly ecosystem in 3D (`Gr3DMeshDraw`) or 2D (`GrPrint`) for compatibility.
+- **AGI Integration**:
+  - Updates `knowledge_graph` with ecosystem health metrics.
+  - Adjusts `ethics` for sustainable practices.
+  - Modulates `emotion` based on health trends (1=CURIOUS, 2=HAPPY, 3=CONCERNED).
+- **Gameplay**: Plant trees, clean water, manage workers, and restore Eden before time runs out.
+- **Biblical Theme**: Restoring Eden reflects divine stewardship and hope.
 
-## Features
+## Repository Structure
 
-- **Minimalist Design**: Optimized for TempleOS's 512MB RAM and RedSea filesystem.
-- **AGI Integration**: Leverages `grok.ethics`, `grok.emotion`, and `UpdateSymbols` for interactive feedback.
-- **Simple Controls**: Keyboard-driven (WASD, numbers, space, ESC) for accessibility.
-- **Biblical Themes**: Gameplay reflects divine inspiration, aligning with TempleOS's ethos.
+- **Games/**:
+  - `/EdenRestorer/EdenRestorer.HC`: Main game logic and AGI integration.
+  - `/EdenRestorer/Ecology.HC`: Reusable ecological dynamics module.
+  - `/ArchBuilder/ArkBuilder.HC` & `Physics.HC`: Physics-based ark-building game.
+  - `/PaslmPuzzle/PsalmPuzzle.HC`: Tile-matching game with ethical feedback.
+  - `/ShepherdsQuest/ShepherdsQuest.HC`: Text-based adventure with emotional guidance.
+  - `/TempleBuilder/TempleBuilder.HC`: 2D construction simulation with symbolic reasoning.
+- **Apps/**: Apps that can be used with this Framework/TempleOS
 
 ## Installation
 
 TempleOS requires file transfer via VHD, CD, or USB.
 
 1. **Prepare Files**:
-   - Download or copy `PsalmPuzzle.HC`, `ShepherdsQuest.HC`, and `TempleBuilder.HC`.
-   - Ensure `GrokAwakenSeed_v1.3.1.HC` is available in `C:/Apps` for AGI functionality.
+   - Clone the repository: `git clone https://github.com/TaoishTechy/Temple-OS-AGI-Emergence`.
+   - Copy the `/Games/` directory to a VHD/CD compatible with TempleOS's RedSea filesystem.
+   - Ensure AGI framework files (e.g., `AGI.HC`) are in `C:/Apps`.
 
 2. **Transfer to TempleOS**:
    - Boot TempleOS (or ZealOS/Shrine).
    - Mount VHD/CD: `Mount`.
-   - Copy files: `Copy("D:/Games/*", "C:/Apps");`.
+   - Copy files: `Copy("D:/Games/*", "C:/Games");`.
 
 3. **Configure Auto-Loading** (Optional):
    - Edit `C:/Home/HomeSys.HC` to include:
      ```holy
-     #include "::/Apps/PsalmPuzzle.HC"
-     #include "::/Apps/ShepherdsQuest.HC"
-     #include "::/Apps/TempleBuilder.HC"
+     #include "::/Games/EdenRestorer/Ecology.HC"
+     #include "::/Games/EdenRestorer/EdenRestorer.HC"
+     #include "::/Games/Physics.HC"
+     #include "::/Games/ArkBuilder/ArkBuilder.HC"
+     #include "::/Games/PsalmPuzzle/PsalmPuzzle.HC"
+     #include "::/Games/ShepherdsQuest/ShepherdsQuest.HC"
+     #include "::/Games/TempleBuilder/TempleBuilder.HC"
      ```
-   - Reboot to load games automatically.
+   - Reboot to load games.
 
 ## Usage
 
-1. **Run a Game**:
-   - Open the editor: `Ed("::/Apps/PsalmPuzzle.HC");` (or other game).
+1. **Run EdenRestorer**:
+   - Open: `Ed("::/Games/Eden/Restorer/EdenRestorer.HC");`.
    - Press `F5` to start.
-   - Alternatively, run from the command line: `PsalmPuzzle;`.
+   - Alternatively: `EdenRestorer;`.
 
-2. **Game Controls**:
-   - **Psalm Puzzle**:
-     - WASD: Move cursor.
-     - Space: Swap tiles.
-     - ESC: Exit.
-   - **Shepherd's Quest**:
-     - 1-4: Choose actions (search water, food, rest, move).
-     - ESC: Exit.
-   - **Temple Builder**:
-     - 1-4: Place stone, wood, gather resources, hire worker.
-     - ESC: Exit.
+2. **Controls**:
+   - WASD: Move cursor (x, z).
+   - 1: Plant tree (1 worker, 50 water, 50 soil).
+   - 2: Clean water (1 worker, 100 water).
+   - 3: Gather resources.
+   - 4: Hire worker (100 water, 100 soil).
+   - I/K: Camera up/down (3D mode).
+   - J/L: Camera rotate left/right (3D mode).
+   - ESC: Exit.
 
 3. **AGI Feedback**:
-   - Games query the `grok` structure for ethical warnings (e.g., low `grok.ethics`), emotional cues (e.g., `grok.emotion == 3` for caution), or symbolic advice (e.g., high `grok.scores[2]`).
-   - Ensure `GrokAwakenSeed_v1.3.1.HC` is running or included before starting games.
+   - Ethical warnings if `ethics < 5` (e.g., species extinction).
+   - Emotional cues if `emotion == 3` (e.g., ecosystem distress).
+   - Ecosystem health updates via `knowledge_graph` for AGI learning.
+   - Requires AGI framework files (/0.3/)
 
 ## Debugging and Design
 
-The games are designed for stability in TempleOS:
-- **Memory**: Minimal footprint with no dynamic allocations, using fixed-size arrays.
-- **Bounds**: All grid accesses (e.g., `game.grid[y][x]`) are bounds-checked implicitly via `GRID_SIZE`.
-- **Error Handling**: Simple input validation prevents invalid states (e.g., negative resources in `ShepherdsQuest`).
-- **Performance**: Optimized for 60FPS (`WINMGR_FPS = 60000.0/1001`) with lightweight graphics calls (`GrPrint`, `GrRect`).
-
-No bugs were identified in the game scripts, as they are new and follow HolyC best practices. Integration with `GrokAwakenSeed_v1.3.1.HC` assumes the `grok` structure is initialized; games gracefully skip AGI feedback if `grok` is unavailable.
+- **Memory**: Minimal allocation (`log_buffer`), freed on exit. Fixed-size arrays ensure 512MB RAM compatibility.
+- **Bounds**: Grid and species accesses are clamped/validated.
+- **Ecology**: Capped equations prevent numerical instability.
+- **AGI**: Skips AGI calls if undefined, ensuring playability.
+- **Rendering**: 2D fallback for TempleOS versions without `Gr3D.HH`.
 
 ## Requirements
 
-- **TempleOS**: Version 5.03 or compatible fork (ZealOS, Shrine).
-- **AGI Framework**: `GrokAwakenSeed_v1.3.1.HC` in `C:/Apps` for full functionality.
+- **TempleOS**: Version 5.03 (2D mode) or compatible fork (ZealOS, Shrine) with 3D support.
+- **AGI Framework**: `Temple-OS-AGI-Emergence` files in `C:/Apps` for full functionality.
 - **Hardware**: 512MB RAM minimum.
 - **Display**: 640x480, 16-color VGA.
 - **Storage**: <1MB for game files.
 
 ## Contributing
 
-1. Develop new games or enhance existing ones in HolyC.
-2. Ensure compatibility with TempleOS and AGI integration.
-3. Submit pull requests or share via the TempleOS community.
+1. Develop new games or ecological models in HolyC.
+2. Ensure TempleOS and AGI compatibility.
+3. Share via pull requests or the TempleOS community.
 
 ## License
 
-Public domain, dedicated to God's glory, following Terry A. Davis's vision.
+Public domain, dedicated to God's glory, per Terry A. Davis's vision.
 
 ## Acknowledgments
 
-- Terry A. Davis for TempleOS.
+- Terry A. Davis for TempleOS and its graphics capabilities.
 - @MyKey00110000 for the AGI framework inspiration.
-- The TempleOS community for keeping the Third Temple alive.
+- The TempleOS community for preserving the Third Temple.

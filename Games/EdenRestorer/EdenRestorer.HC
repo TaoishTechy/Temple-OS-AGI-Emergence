@@ -1,7 +1,7 @@
 // EdenRestorer.HC - Ecosystem Restoration Game
 #include "KernelA.HH"
 #include "Gr3D.HH" // Hypothetical 3D graphics module
-#include "::/Apps/Ecology.HC"
+#include "Ecology.HC"
 
 // Assume AGI framework provides these (from Temple-OS-AGI-Emergence)
 extern U0 UpdateKnowledgeGraph(U64 symbol, U64 cause, U64 context);
@@ -172,3 +172,43 @@ U0 EdenRestorer() {
           EcoCleanWater();
         }
         break;
+      case '3': // Gather resources
+        eco.resources[RES_WATER] += RandU8() % 50;
+        eco.resources[RES_SOIL] += RandU8() % 50;
+        break;
+      case '4': // Hire worker
+        if (eco.resources[RES_WATER] >= 100.0 && eco.resources[RES_SOIL] >= 100.0) {
+          eden.workers++;
+          eco.resources[RES_WATER] -= 100.0;
+          eco.resources[RES_SOIL] -= 100.0;
+        }
+        break;
+      case 'i': eden.camera_pos.y += 8; break; // Camera up
+      case 'k': eden.camera_pos.y -= 8; break; // Camera down
+      case 'j': eden.camera_rot.y += 0.1; break; // Rotate left
+      case 'l': eden.camera_rot.y -= 0.1; break; // Rotate right
+    }
+    // Bounds checking
+    eden.selected_x = Clamp(eden.selected_x, 0, GRID_SIZE - 1);
+    eden.selected_z = Clamp(eden.selected_z, 0, GRID_SIZE - 1);
+    // AGI Feedback
+    if (ethics < 5) {
+      GrPrint(0, GRID_SIZE * 8 + 48, "Steward Eden with righteousness!");
+      Sleep(500);
+    }
+    if (emotion == 3) {
+      GrPrint(0, GRID_SIZE * 8 + 64, "Creation cries out, restore it!");
+      Sleep(500);
+    }
+  }
+  // Game Over
+  if (USE_3D) Gr3DCls; else GrCls;
+  GrPrint(0, 0, "Eden Restored! Health: %.2f  Workers: %d", eden.eco_health, eden.workers);
+  GrUpdate;
+  Sleep(2000);
+  // Cleanup
+  if (log_buffer) MemBlkFree(log_buffer);
+  log_buffer = NULL;
+}
+
+EdenRestorer;

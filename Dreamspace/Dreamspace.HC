@@ -7,11 +7,11 @@
 #define MAX_ENV_NODES 4
 
 class DreamNode {
-  U64 symbol;    // Holy element
-  I64 state;     // Divine stability (1000 = 1.0)
-  U64 edges[4];  // Sacred connections
+  U64 symbol;
+  I64 state;     // 1000 = 1.0
+  U64 edges[4];
   U8 edge_count;
-  PhysicsBody *body; // Physical embodiment
+  PhysicsBody *body;
 };
 
 DreamNode dream_env[MAX_ENV_NODES];
@@ -24,13 +24,12 @@ U0 DreamspaceSimulate(DivineState *divine, MythicEntity *myth) {
   static U64 cycle = 0;
   cycle++;
   I64 ethics = divine->ethics;
-  LOG(LOG_VERBOSE, "Sacred vision cycle %d (ethics: %d, myth: %s)\n", cycle, ethics, myth->Name);
   for (I64 i = 0; i < MAX_ENV_NODES; i++) {
     if (!dream_env[i].symbol) continue;
     I64 stress = (ethics + knowledge_graph[i % 512].weight) % 1000;
     if (myth->Trait == TRAIT_DREAMER) stress += 100;
     dream_env[i].state = Clamp((dream_env[i].state + stress + FastRandU64() % 100) >> 1, 0, 1000);
-    dream_env[i].body->velocity[0] += stress >> 3; // Physics influence
+    dream_env[i].body->velocity[0] += stress >> 3;
     if (dream_env[i].state > 800) {
       LOG(LOG_NORMAL, "Warning: Dream node %d collapsed (state: %d)\n", i, dream_env[i].state);
       MemSet(&dream_env[i], 0, sizeof(DreamNode));
@@ -38,7 +37,7 @@ U0 DreamspaceSimulate(DivineState *divine, MythicEntity *myth) {
       UpdateKnowledgeGraph(dream_env[i].symbol, dream_env[i].state, ethics);
     }
   }
-  UpdatePhysics(); // Apply physics
+  UpdatePhysics();
   if (cycle % 100 == 0) {
     I64 idx = FastRandU64() % MAX_ENV_NODES;
     dream_env[idx].symbol = FastRandU64() % 10000;
@@ -46,7 +45,7 @@ U0 DreamspaceSimulate(DivineState *divine, MythicEntity *myth) {
     MemSet(dream_env[idx].edges, 0, sizeof(U64) * 4);
     dream_env[idx].edge_count = 0;
     dream_env[idx].body = &physics_bodies[idx];
-    LOG(LOG_NORMAL, "Node crafted by God’s hand: %d (symbol: %d)\n", idx, dream_env[idx].symbol);
+    LOG(LOG_NORMAL, "Node crafted by God’s will: %d\n", idx);
     if (!SavePage(dream_env, sizeof(DreamNode) * MAX_ENV_NODES, cycle / 100)) {
       LOG(LOG_NORMAL, "Error: Dreamspace checkpoint failed.\n");
     }

@@ -28,7 +28,7 @@ I64 log_buffer_idx = 0;
 #define LOG(level, fmt, args...) if (cfg.log_level >= level) LogBuffer(fmt, ##args)
 
 U0 LogBuffer(U8 *fmt, ...) {
-  if (!log_buffer) return; // Prevent crash if allocation failed
+  if (!log_buffer) return;
   I64 len = StrPrint(&log_buffer[log_buffer_idx], fmt, ...);
   log_buffer_idx += len;
   if (log_buffer_idx > cfg.page_size - 256) {
@@ -127,7 +127,7 @@ U0 EdenCleanup() {
     MemBlkFree(log_buffer);
     log_buffer = NULL;
   }
-  EcoInit; // Reset ecosystem
+  MemSet(&eden, 0, sizeof(EdenState)); // Reset state without EcoInit
   AGILog(LOG_NORMAL, "EdenRestorer cleaned up.\n");
 }
 
@@ -138,7 +138,7 @@ U0 EdenRestorer() {
     EdenRender();
     EdenUpdate(delta_time);
     eden.time_left -= 1.0;
-    I64 key = KbdGetChar(); // Replaced KbdGet
+    I64 key = KbdGetChar();
     if (key == CH_ESC) {
       EdenCleanup();
       return;

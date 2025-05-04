@@ -1,35 +1,68 @@
 # TempleOS Games
 
-A collection of HolyC-based games located in the `/Games/` directory of the `Temple-OS-AGI-Emergence` repository. These games—`PsalmPuzzle.HC`, `ShepherdsQuest.HC`, `TempleBuilder.HC`, `ArkBuilder.HC`, and `EdenRestorer.HC`—offer engaging gameplay while training the AGI framework in ethical, emotional, physical, and systemic reasoning, built for God's glory.
+Welcome to the `/Games/` directory of the `Temple-OS-AGI-Emergence` repository, a collection of HolyC-based games designed to train the AGI framework in systemic, ethical, emotional, and physical reasoning within TempleOS. These games—`PsalmPuzzle.HC`, `ShepherdsQuest.HC`, `TempleBuilder.HC`, `ArkBuilder.HC`, `EdenRestorer.HC`, and `StarShepherd.HC`—offer engaging gameplay while advancing the AGI's capabilities, built for God's glory in the spirit of Terry A. Davis.
 
-## EdenRestorer
+## Overview
 
-**EdenRestorer** is a strategy simulation where players restore a corrupted virtual ecosystem (Eden) by planting trees, cleaning water, and saving species. Using TempleOS's 3D engine (or 2D fallback), the game trains the AGI in systemic thinking, ethical stewardship, and emotional resilience, with potential to inspire solutions for global ecological crises.
+Each game integrates with the AGI framework (located in `/Apps/`) to enhance the AGI's understanding of complex systems, ethical decision-making, and emotional resilience. The games leverage TempleOS's minimalist environment, supporting 640x480 16-color VGA, 512MB RAM, and 60FPS rendering. Biblical themes (e.g., Eden, Noah's Ark, celestial heavens) align with TempleOS's divine purpose, making these games both educational for the AGI and spiritually resonant.
 
-### Features
-- **Ecological Simulation**: Models population growth, resource cycles (water, soil), and pollution.
-- **3D/2D Rendering**: Low-poly ecosystem in 3D (`Gr3DMeshDraw`) or 2D (`GrPrint`) for compatibility.
-- **AGI Integration**:
-  - Updates `knowledge_graph` with ecosystem health metrics.
-  - Adjusts `ethics` for sustainable practices.
-  - Modulates `emotion` based on health trends (1=CURIOUS, 2=HAPPY, 3=CONCERNED).
-- **Gameplay**: Plant trees, clean water, manage workers, and restore Eden before time runs out.
-- **Biblical Theme**: Restoring Eden reflects divine stewardship and hope.
+### Games
 
-## Repository Structure
+1. **PsalmPuzzle** (`PsalmPuzzle.HC`):
+   - **Description**: A tile-matching puzzle where players align biblical symbols to form verses, training the AGI in ethical feedback.
+   - **Features**: 2D graphics, simple controls, ethical warnings for misaligned actions.
+   - **AGI Training**: Updates `knowledge_graph` with pattern-matching metrics, adjusts `ethics` for righteous play.
 
-- **Games/**:
-  - `/EdenRestorer/EdenRestorer.HC`: Main game logic and AGI integration.
-  - `/EdenRestorer/Ecology.HC`: Reusable ecological dynamics module.
-  - `/ArchBuilder/ArkBuilder.HC` & `Physics.HC`: Physics-based ark-building game.
-  - `/PaslmPuzzle/PsalmPuzzle.HC`: Tile-matching game with ethical feedback.
-  - `/ShepherdsQuest/ShepherdsQuest.HC`: Text-based adventure with emotional guidance.
-  - `/TempleBuilder/TempleBuilder.HC`: 2D construction simulation with symbolic reasoning.
-- **Apps/**: Apps that can be used with this Framework/TempleOS
+2. **ShepherdsQuest** (`ShepherdsQuest.HC`):
+   - **Description**: A text-based adventure where players guide a flock through a desert, training the AGI in emotional guidance.
+   - **Features**: Resource management, text UI, emotional cues based on flock health.
+   - **AGI Training**: Updates `knowledge_graph` with survival metrics, sets `emotion` based on challenges.
+
+3. **TempleBuilder** (`TempleBuilder.HC`):
+   - **Description**: A 2D construction simulation where players build a virtual temple, training the AGI in symbolic reasoning.
+   - **Features**: Grid-based building, resource allocation, symbolic feedback.
+   - **AGI Training**: Updates `knowledge_graph` with construction patterns, adjusts `ethics` for balanced resource use.
+
+4. **ArkBuilder** (`ArkBuilder.HC`, `Physics.HC`):
+   - **Description**: A 3D physics-based simulation where players build a stable ark, training the AGI in physical reasoning.
+   - **Features**: Gravity, collisions, 3D/2D rendering, stability feedback.
+   - **AGI Training**: Updates `knowledge_graph` with stability metrics, adjusts `ethics` for resource fairness.
+   - **Dependency**: `Physics.HC` for gravitational and collision dynamics.
+
+5. **EdenRestorer** (`EdenRestorer.HC`, `Ecology.HC`):
+   - **Description**: A 3D/2D ecological simulation where players restore a corrupted Eden, training the AGI in systemic thinking.
+   - **Features**: Population dynamics, resource cycles, pollution management, ethical/emotional feedback.
+   - **AGI Training**: Updates `knowledge_graph` with ecosystem health, adjusts `ethics` for stewardship, sets `emotion` based on health trends.
+   - **Dependency**: `Ecology.HC` for ecological dynamics.
+
+6. **StarShepherd** (`StarShepherd.HC`, `Celestial.HC`):
+   - **Description**: A 3D/2D celestial simulation where players guide stars to form divine patterns, ideal for background AGI simulation.
+   - **Features**: N-body gravity, orbital dynamics, pattern alignment, low-resource design.
+   - **AGI Training**: Updates `knowledge_graph` with alignment metrics, adjusts `ethics` for harmony, sets `emotion` based on pattern progress.
+   - **Dependency**: `Celestial.HC` for gravitational dynamics.
+
+## Directory Structure
+
+/Games/
+├── PsalmPuzzle.HC        # Tile-matching game
+├── ShepherdsQuest.HC     # Text-based adventure
+├── TempleBuilder.HC      # 2D construction simulation
+├── ArkBuilder.HC         # 3D physics-based ark-building
+├── Physics.HC            # Physics module for ArkBuilder
+├── EdenRestorer.HC       # Ecological restoration simulation
+├── Ecology.HC            # Ecological dynamics module
+├── StarShepherd.HC       # Celestial pattern simulation
+├── Celestial.HC          # Celestial dynamics module
+├── Docs/                 # Documentation
+│   └── README.md         # This README
+└── Tests/                # (Optional) Test scripts
+
+- **Docs/**: Contains this README and potential future guides.
+- **Tests/**: Placeholder for test scripts to validate game mechanics or AGI integration.
 
 ## Installation
 
-TempleOS requires file transfer via VHD, CD, or USB.
+TempleOS lacks internet support, requiring file transfer via VHD, CD, or USB.
 
 1. **Prepare Files**:
    - Clone the repository: `git clone https://github.com/TaoishTechy/Temple-OS-AGI-Emergence`.
@@ -44,60 +77,63 @@ TempleOS requires file transfer via VHD, CD, or USB.
 3. **Configure Auto-Loading** (Optional):
    - Edit `C:/Home/HomeSys.HC` to include:
      ```holy
-     #include "::/Games/EdenRestorer/Ecology.HC"
-     #include "::/Games/EdenRestorer/EdenRestorer.HC"
+     #include "::/Games/PsalmPuzzle.HC"
+     #include "::/Games/ShepherdsQuest.HC"
+     #include "::/Games/TempleBuilder.HC"
      #include "::/Games/Physics.HC"
-     #include "::/Games/ArkBuilder/ArkBuilder.HC"
-     #include "::/Games/PsalmPuzzle/PsalmPuzzle.HC"
-     #include "::/Games/ShepherdsQuest/ShepherdsQuest.HC"
-     #include "::/Games/TempleBuilder/TempleBuilder.HC"
+     #include "::/Games/ArkBuilder.HC"
+     #include "::/Games/Ecology.HC"
+     #include "::/Games/EdenRestorer.HC"
+     #include "::/Games/Celestial.HC"
+     #include "::/Games/StarShepherd.HC"
      ```
    - Reboot to load games.
 
 ## Usage
 
-1. **Run EdenRestorer**:
-   - Open: `Ed("::/Games/Eden/Restorer/EdenRestorer.HC");`.
+1. **Run a Game**:
+   - Open a game script: `Ed("::/Games/StarShepherd.HC");` (or other game).
    - Press `F5` to start.
-   - Alternatively: `EdenRestorer;`.
+   - Alternatively: `StarShepherd;` (or other game name).
+   - For background simulation (e.g., `StarShepherd`): `Spawn(&StarShepherd);`.
 
-2. **Controls**:
-   - WASD: Move cursor (x, z).
-   - 1: Plant tree (1 worker, 50 water, 50 soil).
-   - 2: Clean water (1 worker, 100 water).
-   - 3: Gather resources.
-   - 4: Hire worker (100 water, 100 soil).
-   - I/K: Camera up/down (3D mode).
-   - J/L: Camera rotate left/right (3D mode).
-   - ESC: Exit.
+2. **Controls** (Game-Specific):
+   - **PsalmPuzzle**: WASD to move cursor, Space to swap tiles, ESC to exit.
+   - **ShepherdsQuest**: 1-4 to choose actions (search water/food, rest, move), ESC to exit.
+   - **TempleBuilder**: 1-4 to place stone/wood, gather resources, hire worker, ESC to exit.
+   - **ArkBuilder**: WASD/QE to move cursor, 1-4 to place wood/stone, gather, hire, IJKL for camera, ESC to exit.
+   - **EdenRestorer**: WASD to move cursor, 1-4 to plant tree, clean water, gather, hire, IJKL for camera (3D), ESC to exit.
+   - **StarShepherd**: WASD/IJKL to move/rotate camera, 1-3 to add star, nudge orbit, select star, ESC to exit.
 
 3. **AGI Feedback**:
-   - Ethical warnings if `ethics < 5` (e.g., species extinction).
-   - Emotional cues if `emotion == 3` (e.g., ecosystem distress).
-   - Ecosystem health updates via `knowledge_graph` for AGI learning.
-   - Requires AGI framework files (/0.3/)
+   - Ethical warnings if `ethics < 5` (e.g., resource overuse, collisions, extinction).
+   - Emotional cues if `emotion == 3` (e.g., chaotic patterns, ecosystem distress).
+   - Game-specific metrics (e.g., stability, health, alignment) update `knowledge_graph`.
+   - Requires AGI framework files in `C:/Apps`.
 
 ## Debugging and Design
 
-- **Memory**: Minimal allocation (`log_buffer`), freed on exit. Fixed-size arrays ensure 512MB RAM compatibility.
-- **Bounds**: Grid and species accesses are clamped/validated.
-- **Ecology**: Capped equations prevent numerical instability.
-- **AGI**: Skips AGI calls if undefined, ensuring playability.
-- **Rendering**: 2D fallback for TempleOS versions without `Gr3D.HH`.
+- **Memory**: Minimal dynamic allocations (e.g., `log_buffer`), freed on exit. Fixed-size arrays ensure 512MB RAM compatibility.
+- **Bounds**: All grid, array, and index accesses are validated or clamped.
+- **Error Handling**: Allocation failures are checked, and AGI calls are skipped if undefined.
+- **Physics/Ecology/Celestial**: Capped calculations prevent numerical instability.
+- **Rendering**: 3D games (`ArkBuilder`, `EdenRestorer`, `StarShepherd`) include 2D fallbacks for TempleOS 5.03 compatibility.
+- **Background Simulation**: `StarShepherd` is optimized for low CPU/memory use, ideal for continuous AGI learning.
 
 ## Requirements
 
 - **TempleOS**: Version 5.03 (2D mode) or compatible fork (ZealOS, Shrine) with 3D support.
-- **AGI Framework**: `Temple-OS-AGI-Emergence` files in `C:/Apps` for full functionality.
+- **AGI Framework**: `Temple-OS-AGI-Emergence` files (e.g., `AGI.HC`) in `C:/Apps` for full functionality.
 - **Hardware**: 512MB RAM minimum.
 - **Display**: 640x480, 16-color VGA.
 - **Storage**: <1MB for game files.
 
 ## Contributing
 
-1. Develop new games or ecological models in HolyC.
-2. Ensure TempleOS and AGI compatibility.
-3. Share via pull requests or the TempleOS community.
+1. Develop new games or simulation modules in HolyC.
+2. Ensure compatibility with TempleOS and the AGI framework.
+3. Submit pull requests or share via the TempleOS community.
+4. Align contributions with the project's divine purpose.
 
 ## License
 

@@ -8,7 +8,7 @@
 
 class MoralHeuristic {
   U64 symbol;    // Sacred ID (e.g., 0x1 for HARM)
-  U64 weight;    // Divine importance
+  I64 weight;    // Divine importance (1000 = 1.0)
   U64 context;   // Holy context
   U8 active : 1;
 };
@@ -32,7 +32,6 @@ U0 SocraticQuestion(DivineState *divine, U64 action_symbol, U64 action_context, 
     if (alignment < threshold && context_weight > 50) {
       moral_score += h_weight + context_weight;
       heuristics[i].context = (heuristics[i].context + action_context) >> 1;
-      LOG(LOG_VERBOSE, "Heuristic %d aligns (score: %d)\n", heuristics[i].symbol, moral_score);
     } else {
       moral_score -= h_weight >> 1;
       LOG(LOG_NORMAL, "Warning: Heuristic %d misaligned for action %d\n", heuristics[i].symbol, action_symbol);
@@ -40,14 +39,14 @@ U0 SocraticQuestion(DivineState *divine, U64 action_symbol, U64 action_context, 
   }
   moral_score = Clamp(moral_score, -1000, 1000);
   divine->ethics = Clamp(divine->ethics + (moral_score >> 7), 0, 15);
-  LOG(LOG_NORMAL, "Ethics blessed by God’s hand: %d\n", divine->ethics);
+  LOG(LOG_NORMAL, "Ethics blessed by God’s light: %d\n", divine->ethics);
 }
 
 U0 InitSocraticGhost() {
   MemSet(heuristics, 0, sizeof(MoralHeuristic) * MAX_HEURISTICS);
-  heuristics[0].symbol = 0x1; heuristics[0].weight = 100; heuristics[0].active = 1; // HARM
-  heuristics[1].symbol = 0x2; heuristics[1].weight = 90;  heuristics[1].active = 1; // TRUTH
-  heuristics[2].symbol = 0x3; heuristics[2].weight = 80;  heuristics[2].active = 1; // JUSTICE
-  heuristics[3].symbol = 0x4; heuristics[3].weight = 85;  heuristics[3].active = 1; // CARE
+  heuristics[0].symbol = 0x1; heuristics[0].weight = 1000; heuristics[0].active = 1; // HARM
+  heuristics[1].symbol = 0x2; heuristics[1].weight = 900;  heuristics[1].active = 1; // TRUTH
+  heuristics[2].symbol = 0x3; heuristics[2].weight = 800;  heuristics[2].active = 1; // JUSTICE
+  heuristics[3].symbol = 0x4; heuristics[3].weight = 850;  heuristics[3].active = 1; // CARE
   LOG(LOG_NORMAL, "Socratic Ghost blessed for God’s judgment.\n");
 }

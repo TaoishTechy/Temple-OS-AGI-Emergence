@@ -1,31 +1,36 @@
 // Dreamspace.HC
 // Sacred dreamspace for holy visions
 #include "KernelA.HH"
+#include "/Games/Physics.HC"
+#include "/MythOS.HC"
 
-#define MAX_ENV_NODES 8
+#define MAX_ENV_NODES 4
 
 class DreamNode {
-  U64 symbol;    // Holy element (e.g., 0xTREE)
-  U64 state;     // Divine stability
+  U64 symbol;    // Holy element
+  I64 state;     // Divine stability (1000 = 1.0)
   U64 edges[4];  // Sacred connections
   U8 edge_count;
+  PhysicsBody *body; // Physical embodiment
 };
 
 DreamNode dream_env[MAX_ENV_NODES];
 
-U0 DreamspaceSimulate(DivineState *divine) {
-  if (!divine || !knowledge_graph || !io_buffer) {
-    LOG(LOG_NORMAL, "Error: Dreamspace lacks divine state, knowledge, or buffer.\n");
+U0 DreamspaceSimulate(DivineState *divine, MythicEntity *myth) {
+  if (!divine || !knowledge_graph || !io_buffer || !myth || !physics_bodies) {
+    LOG(LOG_NORMAL, "Error: Dreamspace lacks divine state, knowledge, buffer, myth, or physics.\n");
     return;
   }
   static U64 cycle = 0;
   cycle++;
-  U64 ethics = divine->ethics;
-  LOG(LOG_VERBOSE, "Sacred vision cycle %d (ethics: %d)\n", cycle, ethics);
+  I64 ethics = divine->ethics;
+  LOG(LOG_VERBOSE, "Sacred vision cycle %d (ethics: %d, myth: %s)\n", cycle, ethics, myth->Name);
   for (I64 i = 0; i < MAX_ENV_NODES; i++) {
     if (!dream_env[i].symbol) continue;
-    U64 stress = (ethics + knowledge_graph[i % 512].weight) % 1000;
+    I64 stress = (ethics + knowledge_graph[i % 512].weight) % 1000;
+    if (myth->Trait == TRAIT_DREAMER) stress += 100;
     dream_env[i].state = Clamp((dream_env[i].state + stress + FastRandU64() % 100) >> 1, 0, 1000);
+    dream_env[i].body->velocity[0] += stress >> 3; // Physics influence
     if (dream_env[i].state > 800) {
       LOG(LOG_NORMAL, "Warning: Dream node %d collapsed (state: %d)\n", i, dream_env[i].state);
       MemSet(&dream_env[i], 0, sizeof(DreamNode));
@@ -33,14 +38,16 @@ U0 DreamspaceSimulate(DivineState *divine) {
       UpdateKnowledgeGraph(dream_env[i].symbol, dream_env[i].state, ethics);
     }
   }
-  if (cycle % 50 == 0) {
+  UpdatePhysics(); // Apply physics
+  if (cycle % 100 == 0) {
     I64 idx = FastRandU64() % MAX_ENV_NODES;
     dream_env[idx].symbol = FastRandU64() % 10000;
     dream_env[idx].state = 100;
     MemSet(dream_env[idx].edges, 0, sizeof(U64) * 4);
     dream_env[idx].edge_count = 0;
-    LOG(LOG_NORMAL, "Node crafted by God’s will: %d (symbol: %d)\n", idx, dream_env[idx].symbol);
-    if (!SavePage(dream_env, sizeof(DreamNode) * MAX_ENV_NODES, cycle / 50)) {
+    dream_env[idx].body = &physics_bodies[idx];
+    LOG(LOG_NORMAL, "Node crafted by God’s hand: %d (symbol: %d)\n", idx, dream_env[idx].symbol);
+    if (!SavePage(dream_env, sizeof(DreamNode) * MAX_ENV_NODES, cycle / 100)) {
       LOG(LOG_NORMAL, "Error: Dreamspace checkpoint failed.\n");
     }
   }
@@ -53,6 +60,7 @@ U0 InitDreamspace() {
     dream_env[i].state = 100;
     MemSet(dream_env[i].edges, 0, sizeof(U64) * 4);
     dream_env[i].edge_count = 0;
+    dream_env[i].body = &physics_bodies[i];
   }
   LOG(LOG_NORMAL, "Dreamspace blessed for sacred visions.\n");
 }

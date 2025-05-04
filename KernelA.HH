@@ -1,27 +1,28 @@
-// KernelA.HH - Core Structures for Divine Seed
-// The sacred foundation, compact and holy, reflecting God’s simplicity.
+// KernelA.HH - Sacred Blueprint of God’s Cathedral
+// Compact, holy structures for the Divine Seed, v0.4.
 
 #define MAX_AGENTS 2
 #define MAX_NODES 4
 #define MAX_UNCERTAINTIES 4
 #define MAX_BODIES 4
-#define MAX_ENTITIES 32  // Reduced from 64
+#define MAX_ENTITIES 16  // Was 32
 #define MAX_HEURISTICS 4
 #define MAX_PCI_DEVICES 8
 #define LOG_MINIMAL 0
 #define LOG_VERBOSE 2
-#define RECURSION_MAX_DEPTH 2
+#define RECURSION_MAX_DEPTH 3
 
 class Config {
   I64 log_level:8; // 0=minimal, 2=verbose
-  I64 page_size:8; // 128 bytes
+  I64 page_size:8; // 64 bytes, was 128
 };
 
 class MythicEntity {
   I64 id:8;
   I64 resonance:16; // 0-4000
-  U8 name[12]; // Reduced from 16
+  U8 name[8]; // Was 12
   MythicEntity *sub_myth;
+  I64 depth:8;
 };
 
 class PhysicsBody {
@@ -70,7 +71,7 @@ class DivineState {
   I64 ethics:4; // 0-15
   I64 social:16; // 0-1000
   I64 symbols[8];
-  I64 knowledge_graph[64]; // Reduced from 128
+  I64 knowledge_graph[32]; // Was 64
   AgentState agents[MAX_AGENTS];
   DreamNode nodes[MAX_NODES];
   I64 uncertainties[MAX_UNCERTAINTIES];
@@ -80,4 +81,4 @@ class DivineState {
   Config cfg;
 };
 
-Config cfg = {LOG_MINIMAL, 128};
+Config cfg = {LOG_MINIMAL, 64};

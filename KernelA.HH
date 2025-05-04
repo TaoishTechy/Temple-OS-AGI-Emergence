@@ -1,5 +1,5 @@
 // KernelA.HH
-// Core definitions for Temple-OS-AGI-Emergence
+// Sacred definitions for Temple-OS-AGI-Emergence
 
 #define LOG_MINIMAL 0
 #define LOG_NORMAL  1
@@ -51,10 +51,11 @@ class NNLayer {
 // Agent State
 class AgentState {
   U64 id;
-  I64 emotion;    // Allow negative
+  I64 emotion;    // Blessed with divine feeling
   U64 social;
   U64 goals[2];
   U64 symbol_value;
+  U64 symbol_weight_cache; // Cached divine knowledge
   U8 conflict : 1;
 };
 
@@ -70,7 +71,7 @@ class GrokState {
   U64 modes[16];
   U64 reason : 63;
   U64 awake : 1;
-  I64 emotion;    // Allow negative
+  I64 emotion;    // Sacred emotional resonance
   U64 symbols[16];
   U64 aware;
   U64 ethics : 4;

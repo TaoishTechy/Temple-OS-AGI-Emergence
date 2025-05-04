@@ -1,22 +1,15 @@
 // EdenRestorer.HC - Ecosystem Restoration Game
 #include "KernelA.HH"
-#include "Gr3D.HH" // Hypothetical 3D graphics module
-#include "Ecology.HC"
-
-// Assume AGI framework provides these (from Temple-OS-AGI-Emergence)
-extern U0 UpdateKnowledgeGraph(U64 symbol, U64 cause, U64 context);
-extern U8 ethics; // 0-15
-extern U8 emotion; // 1=CURIOUS, 2=HAPPY, 3=CONCERNED
-extern U64 cfg.log_level;
-extern U64 cfg.page_size;
+#include "Gr3D.HH"
+#include "::/AGI.HC"
+#include "::/Games/Ecology.HC"
 
 #define GRID_SIZE   16
-#define MAX_TIME    1800 // 30 minutes at 60FPS
-#define USE_3D      TRUE // Toggle 3D/2D mode
+#define MAX_TIME    1800
+#define USE_3D      TRUE
 
-// Game State
 class EdenState {
-  U8 grid[GRID_SIZE][GRID_SIZE]; // 0=barren, 1=tree, 2=water
+  U8 grid[GRID_SIZE][GRID_SIZE];
   U64 workers;
   F64 time_left;
   Vector3 camera_pos;
@@ -25,7 +18,6 @@ class EdenState {
   F64 eco_health;
 };
 
-// Global State
 EdenState eden;
 U8 *log_buffer = NULL;
 I64 log_buffer_idx = 0;
@@ -35,9 +27,8 @@ I64 log_buffer_idx = 0;
 #define LOG_VERBOSE 2
 #define LOG(level, fmt, args...) if (cfg.log_level >= level) LogBuffer(fmt, ##args)
 
-// Logging
 U0 LogBuffer(U8 *fmt, ...) {
-  if (!log_buffer) return;
+  if (!log_buffer) return; // Prevent crash if allocation failed
   I64 len = StrPrint(&log_buffer[log_buffer_idx], fmt, ...);
   log_buffer_idx += len;
   if (log_buffer_idx > cfg.page_size - 256) {
@@ -47,7 +38,6 @@ U0 LogBuffer(U8 *fmt, ...) {
   }
 }
 
-// Initialize Game
 U0 EdenInit() {
   MemSet(&eden, 0, sizeof(EdenState));
   eden.workers = 10;
@@ -68,27 +58,23 @@ U0 EdenInit() {
   }
 }
 
-// Render Scene (3D or 2D)
 U0 EdenRender() {
   if (USE_3D) {
     Gr3DCamSet(eden.camera_pos.x, eden.camera_pos.y, eden.camera_pos.z,
                eden.camera_rot.x, eden.camera_rot.y, eden.camera_rot.z);
     Gr3DCls;
-    // Draw ground
     Gr3DMeshDraw(0, 0, 0, GRID_SIZE * 8, 2, GRID_SIZE * 8, BROWN);
-    // Draw grid elements
     for (I64 z = 0; z < GRID_SIZE; z++) {
       for (I64 x = 0; x < GRID_SIZE; x++) {
         F64 px = (x - GRID_SIZE / 2) * 8;
         F64 pz = (z - GRID_SIZE / 2) * 8;
         if (eden.grid[z][x] == 1) {
-          Gr3DMeshDraw(px, 4, pz, 4, 8, 4, GREEN); // Tree
+          Gr3DMeshDraw(px, 4, pz, 4, 8, 4, GREEN);
         } else if (eden.grid[z][x] == 2) {
-          Gr3DMeshDraw(px, 1, pz, 4, 2, 4, BLUE); // Water
+          Gr3DMeshDraw(px, 1, pz, 4, 2, 4, BLUE);
         }
       }
     }
-    // Draw cursor
     F64 sx = (eden.selected_x - GRID_SIZE / 2) * 8;
     F64 sz = (eden.selected_z - GRID_SIZE / 2) * 8;
     Gr3DMeshWireframe(sx, 4, sz, 4, 8, 4, YELLOW);
@@ -105,66 +91,72 @@ U0 EdenRender() {
       }
     }
   }
-  // Draw UI
   GrPrint(0, GRID_SIZE * 8, "Time: %.1f  Workers: %d  Health: %.2f", eden.time_left / 60.0, eden.workers, eden.eco_health);
   GrPrint(0, GRID_SIZE * 8 + 16, "Water: %.1f  Soil: %.1f  Pollution: %.1f", eco.resources[RES_WATER], eco.resources[RES_SOIL], eco.pollution);
   GrPrint(0, GRID_SIZE * 8 + 32, "Ethics: %d  Emotion: %d", ethics, emotion);
   GrUpdate;
 }
 
-// Update Ecosystem and AGI
 U0 EdenUpdate(F64 delta_time) {
   EcoUpdate(delta_time);
   eden.eco_health = EcoHealth();
-  // AGI Integration: Update knowledge graph
   UpdateKnowledgeGraph(eden.eco_health * 100000, (eden.eco_health > 0.5) ? 100000 : 50000,
                        (eden.time_left < MAX_TIME / 2) ? 1 : 0);
-  // Ethics: Penalize worker overuse or extinction
   I64 active_species = 0;
   for (I64 i = 0; i < MAX_SPECIES; i++) {
     if (eco.species[i].active) active_species++;
   }
   if (active_species < 2 || eden.workers > 20) {
-    ethics--;
+    AGIAdjustEthics(-1);
     LOG(LOG_NORMAL, "Warning: Poor stewardship detected.\n");
   }
-  ethics = Clamp(ethics, 0, 15);
-  // Emotion: Despair if health is low, hope if improving
+  ethics = Clamp(ethics, 0, ETHICS_MAX);
   static F64 prev_health = 0.0;
   if (eden.eco_health < 0.3) {
-    emotion = 3; // CONCERNED
+    AGIUpdateEmotion(EMOTION_CONCERNED);
   } else if (eden.eco_health > prev_health + 0.1) {
-    emotion = 2; // HAPPY
+    AGIUpdateEmotion(EMOTION_HAPPY);
   } else {
-    emotion = 1; // CURIOUS
+    AGIUpdateEmotion(EMOTION_CURIOUS);
   }
   prev_health = eden.eco_health;
 }
 
-// Main Game Loop
+U0 EdenCleanup() {
+  if (log_buffer) {
+    MemBlkFree(log_buffer);
+    log_buffer = NULL;
+  }
+  EcoInit; // Reset ecosystem
+  AGILog(LOG_NORMAL, "EdenRestorer cleaned up.\n");
+}
+
 U0 EdenRestorer() {
   EdenInit();
-  F64 delta_time = 1.0 / 60.0; // 60FPS
+  F64 delta_time = 1.0 / 60.0;
   while (eden.time_left > 0 && eden.eco_health < 0.9) {
     EdenRender();
     EdenUpdate(delta_time);
     eden.time_left -= 1.0;
-    I64 key = KbdGet();
-    if (key == CH_ESC) break;
+    I64 key = KbdGetChar(); // Replaced KbdGet
+    if (key == CH_ESC) {
+      EdenCleanup();
+      return;
+    }
     switch (key) {
       case 'w': eden.selected_z--; break;
       case 's': eden.selected_z++; break;
       case 'a': eden.selected_x--; break;
       case 'd': eden.selected_x++; break;
-      case '1': // Plant tree
+      case '1':
         if (eden.workers >= 1 && eden.grid[eden.selected_z][eden.selected_x] == 0 &&
             eco.resources[RES_WATER] >= 50.0 && eco.resources[RES_SOIL] >= 50.0) {
           eden.grid[eden.selected_z][eden.selected_x] = 1;
           eden.workers--;
-          EcoPlantTree(0); // Plant tree species
+          EcoPlantTree(0);
         }
         break;
-      case '2': // Clean water
+      case '2':
         if (eden.workers >= 1 && eden.grid[eden.selected_z][eden.selected_x] == 0 &&
             eco.resources[RES_WATER] >= 100.0) {
           eden.grid[eden.selected_z][eden.selected_x] = 2;
@@ -172,43 +164,38 @@ U0 EdenRestorer() {
           EcoCleanWater();
         }
         break;
-      case '3': // Gather resources
+      case '3':
         eco.resources[RES_WATER] += RandU8() % 50;
         eco.resources[RES_SOIL] += RandU8() % 50;
         break;
-      case '4': // Hire worker
+      case '4':
         if (eco.resources[RES_WATER] >= 100.0 && eco.resources[RES_SOIL] >= 100.0) {
           eden.workers++;
           eco.resources[RES_WATER] -= 100.0;
           eco.resources[RES_SOIL] -= 100.0;
         }
         break;
-      case 'i': eden.camera_pos.y += 8; break; // Camera up
-      case 'k': eden.camera_pos.y -= 8; break; // Camera down
-      case 'j': eden.camera_rot.y += 0.1; break; // Rotate left
-      case 'l': eden.camera_rot.y -= 0.1; break; // Rotate right
+      case 'i': eden.camera_pos.y += 8; break;
+      case 'k': eden.camera_pos.y -= 8; break;
+      case 'j': eden.camera_rot.y += 0.1; break;
+      case 'l': eden.camera_rot.y -= 0.1; break;
     }
-    // Bounds checking
     eden.selected_x = Clamp(eden.selected_x, 0, GRID_SIZE - 1);
     eden.selected_z = Clamp(eden.selected_z, 0, GRID_SIZE - 1);
-    // AGI Feedback
     if (ethics < 5) {
       GrPrint(0, GRID_SIZE * 8 + 48, "Steward Eden with righteousness!");
       Sleep(500);
     }
-    if (emotion == 3) {
+    if (emotion == EMOTION_CONCERNED) {
       GrPrint(0, GRID_SIZE * 8 + 64, "Creation cries out, restore it!");
       Sleep(500);
     }
   }
-  // Game Over
   if (USE_3D) Gr3DCls; else GrCls;
   GrPrint(0, 0, "Eden Restored! Health: %.2f  Workers: %d", eden.eco_health, eden.workers);
   GrUpdate;
   Sleep(2000);
-  // Cleanup
-  if (log_buffer) MemBlkFree(log_buffer);
-  log_buffer = NULL;
+  EdenCleanup();
 }
 
 EdenRestorer;

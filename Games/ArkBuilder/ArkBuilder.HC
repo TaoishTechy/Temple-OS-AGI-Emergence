@@ -1,12 +1,14 @@
-// ArkBuilder.HC (Hypothesized)
+// ArkBuilder.HC - 3D Physics-Based Ark-Building Game
 #include "KernelA.HH"
 #include "Gr3D.HH"
 #include "::/AGI.HC"
 #include "::/Games/Physics.HC"
 
 #define GRID_WIDTH 16
-#define GRID_DEPTH 16
 #define GRID_HEIGHT 16
+#define GRID_DEPTH 16
+#define MAX_TIME 3600
+#define USE_3D TRUE
 
 class ArkState {
   U8 grid[GRID_WIDTH][GRID_HEIGHT][GRID_DEPTH];
@@ -21,6 +23,9 @@ ArkState ark;
 U8 *log_buffer = NULL;
 I64 log_buffer_idx = 0;
 
+#define LOG_MINIMAL 0
+#define LOG_NORMAL  1
+#define LOG_VERBOSE 2
 #define LOG(level, fmt, args...) if (cfg.log_level >= level) LogBuffer(fmt, ##args)
 
 U0 LogBuffer(U8 *fmt, ...) {
@@ -40,6 +45,9 @@ U0 ArkInit() {
   ark.camera_pos.x = 0;
   ark.camera_pos.y = 64;
   ark.camera_pos.z = -128;
+  ark.camera_rot.x = 0;
+  ark.camera_rot.y = 0;
+  ark.camera_rot.z = 0;
   ark.selected_x = GRID_WIDTH / 2;
   ark.selected_y = GRID_HEIGHT / 2;
   ark.selected_z = GRID_DEPTH / 2;
@@ -51,17 +59,143 @@ U0 ArkInit() {
   }
 }
 
+U0 ArkRender() {
+  if (USE_3D) {
+    Gr3DCamSet(ark.camera_pos.x, ark.camera_pos.y, ark.camera_pos.z,
+               ark.camera_rot.x, ark.camera_rot.y, ark.camera_rot.z);
+    Gr3DCls;
+    Gr3DMeshDraw(0, 0, 0, GRID_WIDTH * 8, 2, GRID_DEPTH * 8, BROWN);
+    for (I64 z = 0; z < GRID_DEPTH; z++) {
+      for (I64 y = 0; y < GRID_HEIGHT; y++) {
+        for (I64 x = 0; x < GRID_WIDTH; x++) {
+          if (ark.grid[x][y][z] == 1) {
+            F64 px = (x - GRID_WIDTH / 2) * 8;
+            F64 py = y * 8;
+            F64 pz = (z - GRID_DEPTH / 2) * 8;
+            Gr3DMeshDraw(px, py, pz, 4, 4, 4, BROWN);
+          }
+        }
+      }
+    }
+    F64 sx = (ark.selected_x - GRID_WIDTH / 2) * 8;
+    F64 sy = ark.selected_y * 8;
+    F64 sz = (ark.selected_z - GRID_DEPTH / 2) * 8;
+    Gr3DMeshWireframe(sx, sy, sz, 4, 4, 4, YELLOW);
+  } else {
+    GrCls;
+    for (I64 z = 0; z < GRID_DEPTH; z++) {
+      for (I64 x = 0; x < GRID_WIDTH; x++) {
+        U8 ch = (ark.grid[x][ark.selected_y][z] == 1) ? 'B' : '.';
+        U32 color = (ark.grid[x][ark.selected_y][z] == 1) ? BROWN : BLACK;
+        GrPrint(x * 8, z * 8, "%c", ch, color);
+        if (x == ark.selected_x && z == ark.selected_z) {
+          GrRect(x * 8, z * 8, 8, 8, YELLOW);
+        }
+      }
+    }
+  }
+  GrPrint(0, GRID_DEPTH * 8, "Time: %.1f  Workers: %d  Stability: %.2f", ark.time_left / 60.0, ark.workers, ark.stability_score);
+  GrPrint(0, GRID_DEPTH * 8 + 16, "Ethics: %d  Emotion: %d", ethics, emotion);
+  GrUpdate;
+}
+
+U0 ArkUpdate(F64 delta_time) {
+  PhysicsUpdate(delta_time);
+  PhysicsCheckCollisions();
+  ark.stability_score = PhysicsStability(GRID_WIDTH * 8, GRID_DEPTH * 8);
+  UpdateKnowledgeGraph(ark.stability_score * 1000, (ark.stability_score > 75.0) ? 100000 : 50000,
+                       (ark.time_left < MAX_TIME / 2) ? 1 : 0);
+  I64 block_count = 0;
+  for (I64 z = 0; z < GRID_DEPTH; z++) {
+    for (I64 y = 0; y < GRID_HEIGHT; y++) {
+      for (I64 x = 0; x < GRID_WIDTH; x++) {
+        if (ark.grid[x][y][z] == 1) block_count++;
+      }
+    }
+  }
+  if (block_count > 100 || ark.workers > 20) {
+    AGIAdjustEthics(-1);
+    LOG(LOG_NORMAL, "Warning: Overbuilding detected.\n");
+  }
+  ethics = Clamp(ethics, 0, ETHICS_MAX);
+  static F64 prev_stability = 0.0;
+  if (ark.stability_score < 50.0) {
+    AGIUpdateEmotion(EMOTION_CONCERNED);
+  } else if (ark.stability_score > prev_stability + 10.0) {
+    AGIUpdateEmotion(EMOTION_HAPPY);
+  } else {
+    AGIUpdateEmotion(EMOTION_CURIOUS);
+  }
+  prev_stability = ark.stability_score;
+}
+
 U0 ArkCleanup() {
   if (log_buffer) {
     MemBlkFree(log_buffer);
     log_buffer = NULL;
   }
+  MemSet(&ark, 0, sizeof(ArkState));
   PhysicsCleanup();
   AGILog(LOG_NORMAL, "ArkBuilder cleaned up.\n");
 }
 
 U0 ArkBuilder() {
   ArkInit();
-  // Game loop with KbdGetChar, PhysicsUpdate, etc.
+  F64 delta_time = 1.0 / 60.0;
+  ark.time_left = MAX_TIME;
+  while (ark.time_left > 0 && ark.stability_score < 90.0) {
+    ArkRender();
+    ArkUpdate(delta_time);
+    ark.time_left -= 1.0;
+    I64 key = KbdGetChar();
+    if (key == CH_ESC) {
+      ArkCleanup();
+      return;
+    }
+    switch (key) {
+      case 'w': ark.selected_z--; break;
+      case 's': ark.selected_z++; break;
+      case 'a': ark.selected_x--; break;
+      case 'd': ark.selected_x++; break;
+      case 'q': ark.selected_y--; break;
+      case 'e': ark.selected_y++; break;
+      case '1':
+        if (ark.workers >= 1 && ark.grid[ark.selected_x][ark.selected_y][ark.selected_z] == 0) {
+          ark.grid[ark.selected_x][ark.selected_y][ark.selected_z] = 1;
+          ark.workers--;
+          PhysicsAddObject((ark.selected_x - GRID_WIDTH / 2) * 8, ark.selected_y * 8,
+                           (ark.selected_z - GRID_DEPTH / 2) * 8, 1.0, 8, 8, 8, FALSE);
+        }
+        break;
+      case '2':
+        // Gather resources (hypothetical)
+        break;
+      case '3':
+        // Hire worker
+        if (ark.workers < 20) ark.workers++;
+        break;
+      case 'i': ark.camera_pos.y += 8; break;
+      case 'k': ark.camera_pos.y -= 8; break;
+      case 'j': ark.camera_rot.y += 0.1; break;
+      case 'l': ark.camera_rot.y -= 0.1; break;
+    }
+    ark.selected_x = Clamp(ark.selected_x, 0, GRID_WIDTH - 1);
+    ark.selected_y = Clamp(ark.selected_y, 0, GRID_HEIGHT - 1);
+    ark.selected_z = Clamp(ark.selected_z, 0, GRID_DEPTH - 1);
+    if (ethics < 5) {
+      GrPrint(0, GRID_DEPTH * 8 + 32, "Build with wisdom!");
+      Sleep(500);
+    }
+    if (emotion == EMOTION_CONCERNED) {
+      GrPrint(0, GRID_DEPTH * 8 + 48, "The ark falters, stabilize it!");
+      Sleep(500);
+    }
+  }
+  if (USE_3D) Gr3DCls; else GrCls;
+  GrPrint(0, 0, "Ark Built! Stability: %.2f  Workers: %d", ark.stability_score, ark.workers);
+  GrUpdate;
+  Sleep(2000);
   ArkCleanup();
 }
+
+ArkBuilder;

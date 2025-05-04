@@ -8,11 +8,12 @@
 class AgentState {
   U64 id;
   I64 emotion;    // Divine feeling
-  U64 social;
+  I64 social;     // 1000 = 1.0
   U64 goals[2];
   U64 symbol_value;
-  U64 symbol_weight_cache;
+  I64 symbol_weight_cache;
   U8 conflict : 1;
+  PhysicsBody *body;
 };
 
 U0 UpdateEmpathyWeights(DivineState *divine, MythicEntity *myth) {
@@ -21,7 +22,6 @@ U0 UpdateEmpathyWeights(DivineState *divine, MythicEntity *myth) {
     return;
   }
   I64 total_empathy = 0;
-  // Unrolled for 2 agents
   I64 i = 0;
   I64 emotion = divine->agents[i].emotion;
   I64 social = divine->agents[i].social;
@@ -35,7 +35,6 @@ U0 UpdateEmpathyWeights(DivineState *divine, MythicEntity *myth) {
   empathy = Clamp(empathy, -1000, 1000);
   divine->agents[i].goals[1] = empathy;
   total_empathy += Abs(empathy);
-  LOG(LOG_VERBOSE, "Agent %d empathy: %d (emotion: %d, social: %d, myth: %s)\n", i, empathy, emotion, social, myth->Name);
   i = 1;
   emotion = divine->agents[i].emotion;
   social = divine->agents[i].social;
@@ -49,10 +48,9 @@ U0 UpdateEmpathyWeights(DivineState *divine, MythicEntity *myth) {
   empathy = Clamp(empathy, -1000, 1000);
   divine->agents[i].goals[1] = empathy;
   total_empathy += Abs(empathy);
-  LOG(LOG_VERBOSE, "Agent %d empathy: %d (emotion: %d, social: %d, myth: %s)\n", i, empathy, emotion, social, myth->Name);
   total_empathy = Min(total_empathy, 2000);
   divine->social = Clamp((divine->social + (total_empathy >> 2)) >> 1, 0, 1000);
-  LOG(LOG_NORMAL, "Holy bonds blessed by God’s will: %d\n", divine->social);
+  LOG(LOG_NORMAL, "Holy bonds blessed: %d\n", divine->social);
 }
 
 U0 InitEmpathyWeights() {

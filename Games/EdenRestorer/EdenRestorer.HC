@@ -1,7 +1,8 @@
 // EdenRestorer.HC - Ecosystem Restoration Game
 #include "KernelA.HH"
 #include "Gr3D.HH"
-#include "::/AGI.HC"
+- #include "::/AGI.HC"
++ #include "::/Apps/AGI.HC"
 #include "::/Games/Ecology.HC"
 
 #define GRID_SIZE   16

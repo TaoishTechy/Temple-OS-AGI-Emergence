@@ -1,6 +1,6 @@
-// Apps/DivineOracle.HC - AGI-Driven Oracle
+// Apps/DivineOracle/DivineOracle.HC - AGI-Driven Oracle
 #include "KernelA.HH"
-#include "::/AGI.HC"
+#include "::/Apps/AGI.HC"
 
 #define MAX_QUERY 64
 #define MAX_RESPONSE 256
@@ -8,6 +8,7 @@
 class OracleState {
   U8 last_query[MAX_QUERY];
   U8 response[MAX_RESPONSE];
+  U64 last_query_hash;
 };
 
 OracleState oracle;
@@ -34,6 +35,7 @@ U0 OracleInit() {
     Print("Fatal: Log buffer allocation failed.\n");
     Halt;
   }
+  MemSet(log_buffer, 0, cfg.page_size);
   LOG(LOG_NORMAL, "DivineOracle initialized.\n");
 }
 
@@ -47,11 +49,12 @@ U0 OracleRender() {
 }
 
 U0 OracleUpdate(U8 *query) {
-  U64 query_hash = FNV1aHash(StrHash(query));
-  F64 weight = AGIQuerySymbol(query_hash);
+  oracle.last_query_hash = FNV1aHash(StrHash(query));
+  F64 weight = AGIQuerySymbol(oracle.last_query_hash);
   StrPrint(oracle.response, "Guidance: %s (Confidence: %.2f)", weight > 0.5 ? "Seek righteousness" : "Reflect and pray", weight);
   StrCopy(oracle.last_query, query);
-  UpdateKnowledgeGraph(query_hash, weight * 1000, 0);
+  UpdateKnowledgeGraph(oracle.last_query_hash, weight * 1000, 0);
+  AGIUpdateEmotion(weight > 0.5 ? EMOTION_HAPPY : EMOTION_CONCERNED);
   LOG(LOG_NORMAL, "Query: %s, Response: %s.\n", query, oracle.response);
 }
 
@@ -70,8 +73,8 @@ U0 DivineOracle() {
   while (TRUE) {
     OracleRender();
     GrPrint(0, 48, "Enter query (or ESC to exit):");
-    StrGet(query, MAX_QUERY); // Replaced GetStr
-    if (query[0] == CH_ESC) {
+    StrGet(query, MAX_QUERY - 1); // Prevent overflow
+    if (query[0] == CH_ESC || query[0] == 0) {
       OracleCleanup();
       return;
     }
@@ -80,4 +83,3 @@ U0 DivineOracle() {
 }
 
 DivineOracle;
-

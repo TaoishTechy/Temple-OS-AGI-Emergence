@@ -8,7 +8,7 @@
 class UncertaintyLog {
   U64 symbol;
   U64 context;
-  I64 weight; // 1000 = 1.0
+  I64 weight;
   U8 resolved : 1;
 };
 
@@ -29,18 +29,14 @@ U0 LogUncertainty(U64 symbol, U64 context, MythicEntity *myth) {
   }
   if (idx >= 0) {
     if (uncertainties[idx].symbol && !uncertainties[idx].resolved) {
-      LOG(LOG_NORMAL, "Evicted uncertainty: symbol %d, weight %d\n",
-          uncertainties[idx].symbol, uncertainties[idx].weight);
+      LOG(LOG_NORMAL, "Evicted uncertainty: symbol %d\n", uncertainties[idx].symbol);
     }
     uncertainties[idx].symbol = symbol;
     uncertainties[idx].context = context;
     uncertainties[idx].weight = 100 + (FastRandU64() % 50);
     if (myth->Trait == TRAIT_SHADOW) uncertainties[idx].weight += 50;
     uncertainties[idx].resolved = 0;
-    LOG(LOG_NORMAL, "Uncertainty logged: symbol %d, context %d, weight %d, myth: %s\n",
-        symbol, context, uncertainties[idx].weight, myth->Name);
-  } else {
-    LOG(LOG_NORMAL, "Warning: Uncertainty log full.\n");
+    LOG(LOG_NORMAL, "Uncertainty logged: symbol %d\n", symbol);
   }
 }
 
@@ -49,7 +45,7 @@ U0 ResolveAmbiguity(DivineState *divine, MythicEntity *myth) {
     LOG(LOG_NORMAL, "Error: Introspection lacks divine state, knowledge, symbols, or myth.\n");
     return;
   }
-  for (I64 i = 0; i < Min(MAX_UNCERTAINTIES, 2); i++) {
+  for (I64 i = 0; i < MAX_UNCERTAINTIES; i++) {
     if (!uncertainties[i].symbol || uncertainties[i].resolved) continue;
     I64 alignment = (uncertainties[i].symbol ^ divine->symbols[0 % 16]) % 1000;
     I64 hash_idx = (uncertainties[i].symbol * 0x9E3779B9) % 512;
@@ -58,12 +54,11 @@ U0 ResolveAmbiguity(DivineState *divine, MythicEntity *myth) {
       uncertainties[i].resolved = 1;
       uncertainties[i].weight = 0;
       UpdateKnowledgeGraph(uncertainties[i].symbol, uncertainties[i].context, divine->ethics);
-      LOG(LOG_NORMAL, "Sacred clarity achieved: symbol %d, myth: %s\n", uncertainties[i].symbol, myth->Name);
+      LOG(LOG_NORMAL, "Sacred clarity achieved: symbol %d\n", uncertainties[i].symbol);
     } else {
       uncertainties[i].weight = Clamp(uncertainties[i].weight + 10, 0, 1000);
       if (uncertainties[i].weight > 600) {
-        LOG(LOG_NORMAL, "Warning: Persistent ambiguity: symbol %d (weight: %d, myth: %s)\n",
-            uncertainties[i].symbol, uncertainties[i].weight, myth->Name);
+        LOG(LOG_NORMAL, "Warning: Persistent ambiguity: symbol %d\n", uncertainties[i].symbol);
       }
     }
   }
@@ -73,3 +68,4 @@ U0 InitIntrospection() {
   MemSet(uncertainties, 0, sizeof(UncertaintyLog) * MAX_UNCERTAINTIES);
   LOG(LOG_NORMAL, "Introspection blessed for God’s clarity.\n");
 }
+

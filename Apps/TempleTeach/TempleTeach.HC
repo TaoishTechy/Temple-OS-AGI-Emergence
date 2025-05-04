@@ -4,7 +4,7 @@
 
 #define MAX_ANSWER 64
 #define MAX_LESSON 256
-#define MAX_LESSONS 3
+#define MAX_LESSONS 5 // Increased from 3
 
 class TeachState {
   U8 lesson[MAX_LESSON];
@@ -19,13 +19,17 @@ I64 log_buffer_idx = 0;
 U8 *lessons[MAX_LESSONS] = {
   "Lesson 1: Write 'U0 Main() { Print(\"Hello, World!\"); }'",
   "Lesson 2: Write 'I64 x = 5; Print(\"x=%d\", x);'",
-  "Lesson 3: Write 'U0 Loop() { for (I64 i=0; i<3; i++) Print(\"%d\", i); }'"
+  "Lesson 3: Write 'U0 Loop() { for (I64 i=0; i<3; i++) Print(\"%d\", i); }'",
+  "Lesson 4: Write 'U8 *s = \"Temple\"; Print(\"%s\", s);'",
+  "Lesson 5: Write 'I64 Sum(I64 a, I64 b) { return a + b; }'"
 };
 
 U8 *answers[MAX_LESSONS] = {
   "U0 Main() { Print(\"Hello, World!\"); }",
   "I64 x = 5; Print(\"x=%d\", x);",
-  "U0 Loop() { for (I64 i=0; i<3; i++) Print(\"%d\", i); }"
+  "U0 Loop() { for (I64 i=0; i<3; i++) Print(\"%d\", i); }",
+  "U8 *s = \"Temple\"; Print(\"%s\", s);",
+  "I64 Sum(I64 a, I64 b) { return a + b; }"
 };
 
 #define LOG(level, fmt, args...) if (cfg.log_level >= level) LogBuffer(fmt, ##args)
@@ -34,7 +38,7 @@ U0 LogBuffer(U8 *fmt, ...) {
   if (!log_buffer) return;
   I64 len = StrPrint(&log_buffer[log_buffer_idx], fmt, ...);
   log_buffer_idx += len;
-  if (log_buffer_idx > cfg.page_size - 256) {
+  if (log_buffer_idx > cfg.page_size - 128) {
     Print("%s", log_buffer);
     log_buffer_idx = 0;
     MemSet(log_buffer, 0, cfg.page_size);
@@ -67,6 +71,7 @@ U0 TeachUpdate(U8 *answer) {
   Bool correct = StrMatch(answer, answers[teach.lesson_idx]);
   UpdateKnowledgeGraph(FNV1aHash(teach.lesson_idx), correct ? 100000 : 50000, 0);
   AGIUpdateEmotion(correct ? EMOTION_HAPPY : EMOTION_CONCERNED);
+  AGIAdjustEthics(correct ? 1 : -1);
   StrCopy(teach.answer, answer);
   if (correct && teach.lesson_idx < MAX_LESSONS - 1) {
     teach.lesson_idx++;

@@ -8,7 +8,7 @@
 
 U0 DisplayThoughtThread(DivineState *divine, MythicEntity *myth) {
   if (!divine || !divine->agents || !log_buffer || !heuristics || !uncertainties || !divine->symbols || !myth || !physics_bodies) {
-    LOG(LOG_NORMAL, "Error: Thought Thread lacks divine state, agents, buffer, heuristics, uncertainties, symbols, myth, or physics.\n");
+    LOG(LOG_NORMAL, "Error: Thought Thread lacks divine state or resources.\n");
     return;
   }
   I64 buf_idx = log_buffer_idx;
@@ -17,44 +17,25 @@ U0 DisplayThoughtThread(DivineState *divine, MythicEntity *myth) {
   StrPrint(buf, "=== SACRED THOUGHTS ===\n");
   buf_idx += StrLen(buf);
   if (buf_idx >= max_len) goto flush;
-
   StrPrint(buf + buf_idx, "Emotion: %d | Ethics: %d | Social: %d\n", divine->emotion, divine->ethics, divine->social);
   buf_idx += StrLen(buf + buf_idx);
   if (buf_idx >= max_len) goto flush;
-
-  StrPrint(buf + buf_idx, "Reason: %d | Myth: %s\n", divine->reason, myth->Name);
+  StrPrint(buf + buf_idx, "Myth: %s | Pos: %d\n", myth->Name, divine->agents[0].body->position[0]);
   buf_idx += StrLen(buf + buf_idx);
   if (buf_idx >= max_len) goto flush;
-
-  I64 i = 0;
-  StrPrint(buf + buf_idx, "Agent %d: Value %d, Pos %d, Conflict %d\n",
-           divine->agents[i].id, divine->agents[i].symbol_value, divine->agents[i].body->position[0], divine->agents[i].conflict);
+  StrPrint(buf + buf_idx, "Agent 0: Value %d, Conflict %d\n", divine->agents[0].symbol_value, divine->agents[0].conflict);
   buf_idx += StrLen(buf + buf_idx);
   if (buf_idx >= max_len) goto flush;
-
-  StrPrint(buf + buf_idx, "--- Holy Heuristics ---\n");
+  StrPrint(buf + buf_idx, "--- Holy Warnings ---\n");
   buf_idx += StrLen(buf + buf_idx);
   if (buf_idx >= max_len) goto flush;
-  for (i = 0; i < MAX_HEURISTICS; i++) {
-    if (heuristics[i].active) {
-      StrPrint(buf + buf_idx, "Heuristic %d: Weight %d\n", heuristics[i].symbol, heuristics[i].weight);
-      buf_idx += StrLen(buf + buf_idx);
-      if (buf_idx >= max_len) goto flush;
-    }
-  }
-
-  StrPrint(buf + buf_idx, "--- Sacred Warnings ---\n");
-  buf_idx += StrLen(buf + buf_idx);
-  if (buf_idx >= max_len) goto flush;
-  for (i = 0; i < MAX_UNCERTAINTIES; i++) {
+  for (I64 i = 0; i < MAX_UNCERTAINTIES; i++) {
     if (uncertainties[i].symbol && !uncertainties[i].resolved && uncertainties[i].weight > 600) {
-      StrPrint(buf + buf_idx, "Symbol %d: High uncertainty (%d)\n",
-               uncertainties[i].symbol, uncertainties[i].weight);
+      StrPrint(buf + buf_idx, "Symbol %d: High uncertainty\n", uncertainties[i].symbol);
       buf_idx += StrLen(buf + buf_idx);
       if (buf_idx >= max_len) goto flush;
     }
   }
-
 flush:
   log_buffer_idx = buf_idx;
   if (log_buffer_idx > cfg.page_size - 256) {

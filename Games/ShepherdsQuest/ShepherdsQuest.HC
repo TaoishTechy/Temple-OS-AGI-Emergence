@@ -1,75 +1,121 @@
-// ShepherdsQuest.HC - Ethical Adventure Game
+// Games/ShepherdsQuest.HC - Text-Based Adventure
 #include "KernelA.HH"
+#include "::/AGI.HC" // or ::/Apps/AGI.HC
+
+#define MAX_CHOICE 4
+#define MAX_TIME 1800
 
 class QuestState {
-  U64 flock;
-  U64 water;
-  U64 food;
-  U64 day;
-  U8 location[32];
+  U64 time_left;
+  U64 flock_health;
+  U64 resources;
 };
 
 QuestState quest;
+U8 *log_buffer = NULL;
+I64 log_buffer_idx = 0;
 
-U0 DrawQuest() {
+#define LOG(level, fmt, args...) if (cfg.log_level >= level) LogBuffer(fmt, ##args)
+
+U0 LogBuffer(U8 *fmt, ...) {
+  if (!log_buffer) return;
+  I64 len = StrPrint(&log_buffer[log_buffer_idx], fmt, ...);
+  log_buffer_idx += len;
+  if (log_buffer_idx > cfg.page_size - 256) {
+    Print("%s", log_buffer);
+    log_buffer_idx = 0;
+    MemSet(log_buffer, 0, cfg.page_size);
+  }
+}
+
+U0 QuestInit() {
+  MemSet(&quest, 0, sizeof(QuestState));
+  quest.time_left = MAX_TIME;
+  quest.flock_health = 100;
+  quest.resources = 50;
+  log_buffer = MemBlkAlloc(cfg.page_size, MEM_ALIGN_4K);
+  if (!log_buffer) {
+    Print("Fatal: Log buffer allocation failed.\n");
+    Halt;
+  }
+  LOG(LOG_NORMAL, "ShepherdsQuest initialized.\n");
+}
+
+U0 QuestRender() {
   GrCls;
-  GrPrint(0, 0, "Day %d: %s", quest.day, quest.location);
-  GrPrint(0, 16, "Flock: %d  Water: %d  Food: %d", quest.flock, quest.water, quest.food);
+  GrPrint(0, 0, "Shepherd's Quest: Time Left: %.1f", quest.time_left / 60.0);
+  GrPrint(0, 16, "Flock Health: %d  Resources: %d", quest.flock_health, quest.resources);
   GrPrint(0, 32, "1. Search for water");
   GrPrint(0, 48, "2. Search for food");
   GrPrint(0, 64, "3. Rest");
   GrPrint(0, 80, "4. Move forward");
-  GrPrint(0, 96, "Emotion: %d", grok.emotion);
+  GrPrint(0, 480 - 16, "Ethics: %d  Emotion: %d", ethics, emotion);
   GrUpdate;
 }
 
-U0 ShepherdsQuest() {
+U0 QuestUpdate(I64 choice) {
+  switch (choice) {
+    case 1:
+      quest.resources += 10;
+      quest.flock_health -= 5;
+      break;
+    case 2:
+      quest.flock_health += 10;
+      quest.resources -= 5;
+      break;
+    case 3:
+      quest.flock_health += 5;
+      break;
+    case 4:
+      quest.time_left -= 60;
+      break;
+  }
+  UpdateKnowledgeGraph(FNV1aHash(quest.flock_health), quest.resources * 1000, 0);
+  if (quest.flock_health < 20) {
+    AGIAdjustEthics(-1);
+    AGIUpdateEmotion(EMOTION_CONCERNED);
+  } else {
+    AGIUpdateEmotion(EMOTION_HAPPY);
+  }
+  LOG(LOG_NORMAL, "Choice: %d, Health: %d, Resources: %d.\n", choice, quest.flock_health, quest.resources);
+}
+
+U0 QuestCleanup() {
+  if (log_buffer) {
+    MemBlkFree(log_buffer);
+    log_buffer = NULL;
+  }
   MemSet(&quest, 0, sizeof(QuestState));
-  quest.flock = 100;
-  quest.water = 50;
-  quest.food = 50;
-  quest.day = 1;
-  StrCpy(quest.location, "Desert Oasis");
-  while (quest.flock > 0) {
-    DrawQuest();
-    I64 key = KbdGet();
-    if (key == CH_ESC) break;
-    quest.day++;
+  AGILog(LOG_NORMAL, "ShepherdsQuest cleaned up.\n");
+}
+
+U0 ShepherdsQuest() {
+  QuestInit();
+  F64 delta_time = 1.0 / 60.0;
+  while (quest.time_left > 0 && quest.flock_health > 0) {
+    QuestRender();
+    quest.time_left -= 1.0;
+    I64 key = KbdGetChar();
+    if (key == CH_ESC) {
+      QuestCleanup();
+      return;
+    }
+    I64 choice = 0;
     switch (key) {
-      case '1':
-        quest.water += RandU8() % 20;
-        quest.flock -= RandU8() % 5;
-        StrCpy(quest.location, "Springs");
-        break;
-      case '2':
-        quest.food += RandU8() % 20;
-        quest.flock -= RandU8() % 5;
-        StrCpy(quest.location, "Pasture");
-        break;
-      case '3':
-        quest.flock += RandU8() % 10;
-        quest.water -= RandU8() % 10;
-        quest.food -= RandU8() % 10;
-        StrCpy(quest.location, "Camp");
-        break;
-      case '4':
-        quest.water -= RandU8() % 15;
-        quest.food -= RandU8() % 15;
-        quest.flock -= RandU8() % 10;
-        StrCpy(quest.location, "Desert Path");
-        break;
+      case '1': choice = 1; break;
+      case '2': choice = 2; break;
+      case '3': choice = 3; break;
+      case '4': choice = 4; break;
     }
-    // AGI Integration: Emotional guidance
-    if (grok.emotion == 3) { // CONCERNED
-      GrPrint(0, 112, "Be cautious, shepherd!");
-      Sleep(500);
+    if (choice > 0) {
+      QuestUpdate(choice);
     }
-    if (quest.water <= 0 || quest.food <= 0) quest.flock -= 20;
   }
   GrCls;
-  GrPrint(0, 0, "Quest ended on day %d with %d sheep.", quest.day, quest.flock);
+  GrPrint(0, 0, "Quest Ended! Health: %d  Resources: %d", quest.flock_health, quest.resources);
   GrUpdate;
   Sleep(2000);
+  QuestCleanup();
 }
 
 ShepherdsQuest;

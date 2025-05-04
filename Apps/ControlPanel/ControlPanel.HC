@@ -19,7 +19,7 @@ U0 LogBuffer(U8 *fmt, ...) {
   if (!log_buffer) return;
   I64 len = StrPrint(&log_buffer[log_buffer_idx], fmt, ...);
   log_buffer_idx += len;
-  if (log_buffer_idx > cfg.page_size - 256) {
+  if (log_buffer_idx > cfg.page_size - 128) {
     Print("%s", log_buffer);
     log_buffer_idx = 0;
     MemSet(log_buffer, 0, cfg.page_size);
@@ -53,12 +53,14 @@ U0 PanelRender() {
 
 U0 PanelUpdate() {
   I64 current_ticks = Ticks;
-  panel.cpu_usage = (current_ticks - last_ticks) / 1000.0 * 100.0; // Simplified
+  I64 active_tasks = TaskCount(); // Simplified metric
+  panel.cpu_usage = (active_tasks * (current_ticks - last_ticks) / 1000.0) * 10.0;
   panel.cpu_usage = Clamp(panel.cpu_usage, 0.0, 100.0);
   last_ticks = current_ticks;
   UpdateKnowledgeGraph(FNV1aHash(panel.log_level), panel.page_size, 0);
-  if (panel.cpu_usage > 80.0) {
+  if (panel.cpu_usage > 90.0) {
     AGIUpdateEmotion(EMOTION_CONCERNED);
+    AGIAdjustEthics(-1);
   } else {
     AGIUpdateEmotion(EMOTION_HAPPY);
   }
@@ -86,11 +88,11 @@ U0 ControlPanel() {
       return;
     }
     switch (key) {
-      case '1': panel.log_level = 0; break;
-      case '2': panel.log_level = 1; break;
-      case '3': panel.log_level = 2; break;
-      case '4': panel.page_size = 4096; break;
-      case '5': panel.page_size = 8192; break;
+      case '1': panel.log_level = LOG_MINIMAL; break;
+      case '2': panel.log_level = LOG_NORMAL; break;
+      case '3': panel.log_level = LOG_VERBOSE; break;
+      case '4': panel.page_size = 2048; break;
+      case '5': panel.page_size = 4096; break;
     }
   }
 }

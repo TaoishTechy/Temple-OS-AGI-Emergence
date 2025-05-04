@@ -10,17 +10,16 @@
 
 I64 SocraticQuestion(DivineState *divine, I64 action, MythicEntity *myth, I64 depth) {
   if (!divine || !myth || depth > RECURSION_MAX_DEPTH) return 0;
-  I64 score = 0, hash_idx = action & 31; // Was 255
-  // Unrolled loop for speed
+  I64 score = 0, hash_idx = action & 31;
   score += divine->knowledge_graph[hash_idx] * HARM >> 8;
   score += divine->knowledge_graph[hash_idx] * TRUTH >> 8;
   score += divine->knowledge_graph[hash_idx] * JUSTICE >> 8;
   score += divine->knowledge_graph[hash_idx] * CARE >> 8;
-  if (myth->resonance > 2000 && myth->name[0] == 'T') // TRICKSTER
+  if (myth->resonance > 2000 && myth->name[0] == 'T')
     score -= 50;
   score = Clamp(score, 0, 1000);
-  divine->ethics = score >> 6; // 0-15
-  if (myth->name[0] == 'L') // LIGHT
+  divine->ethics = score >> 6;
+  if (myth->name[0] == 'L')
     divine->emotion += 1;
   if (myth->sub_myth && depth < RECURSION_MAX_DEPTH)
     score += SocraticQuestion(divine, action, myth->sub_myth, depth + 1) >> 1;
@@ -33,3 +32,4 @@ U0 InitSocraticGhost() {
   if (cfg.log_level >= LOG_MINIMAL)
     Print("Judgment anointed by His wisdom\n");
 }
+

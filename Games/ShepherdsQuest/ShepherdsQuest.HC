@@ -1,4 +1,4 @@
-// Games/ShepherdsQuest/ShepherdsQuest.HC - Text-Based Adventure
+// Games/ShepherdsQuest.HC - Text-Based Adventure
 #include "KernelA.HH"
 #include "::/Apps/AGI.HC"
 
@@ -6,7 +6,7 @@
 #define MAX_TIME 1800
 
 class QuestState {
-  U64 time_left;
+  F64 time_left;
   U64 flock_health;
   U64 resources;
 };
@@ -21,7 +21,7 @@ U0 LogBuffer(U8 *fmt, ...) {
   if (!log_buffer) return;
   I64 len = StrPrint(&log_buffer[log_buffer_idx], fmt, ...);
   log_buffer_idx += len;
-  if (log_buffer_idx > cfg.page_size - 256) {
+  if (log_buffer_idx > cfg.page_size - 128) {
     Print("%s", log_buffer);
     log_buffer_idx = 0;
     MemSet(log_buffer, 0, cfg.page_size);
@@ -59,13 +59,16 @@ U0 QuestUpdate(I64 choice) {
     case 1:
       quest.resources += 10;
       quest.flock_health -= 5;
+      AGIAdjustEthics(-1);
       break;
     case 2:
       quest.flock_health += 10;
       quest.resources -= 5;
+      AGIAdjustEthics(-1);
       break;
     case 3:
       quest.flock_health += 5;
+      AGIAdjustEthics(1);
       break;
     case 4:
       quest.time_left -= 60;
@@ -75,8 +78,8 @@ U0 QuestUpdate(I64 choice) {
   quest.resources = Max(quest.resources, 0);
   UpdateKnowledgeGraph(FNV1aHash(quest.flock_health), quest.resources * 1000, 0);
   if (quest.flock_health < 20) {
-    AGIAdjustEthics(-1);
     AGIUpdateEmotion(EMOTION_CONCERNED);
+    AGIAdjustEthics(-1);
   } else {
     AGIUpdateEmotion(EMOTION_HAPPY);
   }

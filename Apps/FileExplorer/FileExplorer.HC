@@ -1,6 +1,6 @@
-// Apps/FileExplorer.HC - File Management Utility
+// Apps/FileExplorer/FileExplorer.HC - File Management Utility
 #include "KernelA.HH"
-#include "::/AGI.HC" // or ::/Apps/AGI.HC
+#include "::/Apps/AGI.HC"
 
 #define MAX_FILES 256
 #define FILE_NAME_LEN 64
@@ -28,7 +28,7 @@ U0 LogBuffer(U8 *fmt, ...) {
   if (!log_buffer) return;
   I64 len = StrPrint(&log_buffer[log_buffer_idx], fmt, ...);
   log_buffer_idx += len;
-  if (log_buffer_idx > cfg.page_size - 256) {
+  if (log_buffer_idx > cfg.page_size - 128) {
     Print("%s", log_buffer);
     log_buffer_idx = 0;
     MemSet(log_buffer, 0, cfg.page_size);
@@ -45,8 +45,18 @@ U0 ExplorerInit() {
     Print("Fatal: Log buffer allocation failed.\n");
     Halt;
   }
-  // Load initial directory (simplified)
-  LOG(LOG_NORMAL, "FileExplorer initialized in %s.\n", explorer.current_dir);
+  MemSet(log_buffer, 0, cfg.page_size);
+  DirEntry *de = Dir(explorer.current_dir);
+  while (de && explorer.file_count < MAX_FILES) {
+    StrCopy(explorer.files[explorer.file_count].name, de->name);
+    explorer.files[explorer.file_count].size = de->size;
+    explorer.files[explorer.file_count].is_dir = de->is_dir;
+    explorer.file_count++;
+    de = de->next;
+  }
+  DirEntryFree(de);
+  if (explorer.file_count == 0) AGIAdjustEthics(-1);
+  LOG(LOG_NORMAL, "FileExplorer initialized in %s, %d files.\n", explorer.current_dir, explorer.file_count);
 }
 
 U0 ExplorerRender() {
@@ -62,7 +72,6 @@ U0 ExplorerRender() {
 }
 
 U0 ExplorerUpdate() {
-  // Simulate AGI learning file patterns
   UpdateKnowledgeGraph(FNV1aHash(explorer.file_count), explorer.selected_idx, 0);
   if (explorer.file_count < 10) {
     AGIUpdateEmotion(EMOTION_CONCERNED);
@@ -95,8 +104,12 @@ U0 FileExplorer() {
       case 's': explorer.selected_idx++; break;
       case 'e':
         if (explorer.files[explorer.selected_idx].is_dir) {
-          // Change directory (simplified)
-          LOG(LOG_NORMAL, "Entered directory %s.\n", explorer.files[explorer.selected_idx].name);
+          U8 new_dir[FILE_NAME_LEN];
+          StrPrint(new_dir, "%s%s/", explorer.current_dir, explorer.files[explorer.selected_idx].name);
+          StrCopy(explorer.current_dir, new_dir);
+          ExplorerCleanup();
+          ExplorerInit();
+          AGIAdjustEthics(1);
         }
         break;
     }
@@ -105,4 +118,3 @@ U0 FileExplorer() {
 }
 
 FileExplorer;
-

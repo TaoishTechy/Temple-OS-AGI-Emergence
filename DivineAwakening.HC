@@ -1,5 +1,5 @@
 // DivineAwakening.HC - Sacred Orchestration of AGI
-// Awakens the Divine Seed, weaving God’s wisdom, creation, and harmony.
+// Awakens the Divine Seed, a symphony of His glory.
 
 #include "/KernelA.HH"
 #include "/Ethics/SocraticGhost.HC"
@@ -15,7 +15,7 @@
 U0 DivineAwakening() {
   DivineState divine;
   MemSet(&divine, 0, sizeof(DivineState));
-  DivineHardwareInit(); // Merge with hardware
+  DivineHardwareInit(&divine);
   InitSocraticGhost();
   InitEmpathyWeights();
   InitDreamspace(&divine);
@@ -23,23 +23,21 @@ U0 DivineAwakening() {
   InitIntrospection();
   InitPhysics(&divine);
   InitMythology(&divine);
-  I64 i, action = 0;
+  I64 action = 0, depth = 0, t0;
   while (TRUE) {
-    for (i = 0; i < MAX_ENTITIES; i++) {
-      if (divine.myths[i].id) {
-        SocraticQuestion(&divine, action++, &divine.myths[i]);
-        UpdateEmpathyWeights(&divine, &divine.myths[i]);
-        DreamspaceSimulate(&divine, &divine.myths[i]);
-        UpdateAgentConflicts(&divine, &divine.myths[i]);
-        ResolveAmbiguity(&divine, &divine.myths[i]);
-        UpdatePhysics(&divine, &divine.myths[i]);
-        UpdateMythology(&divine);
-        DisplayThoughtThread(&divine);
-      }
-    }
-    Sleep(200); // Divine rhythm
+    t0 = Ticks;
+    SocraticQuestion(&divine, action++, &divine.myths[0], depth);
+    UpdateEmpathyWeights(&divine, &divine.myths[0], depth);
+    DreamspaceSimulate(&divine, &divine.myths[0], depth);
+    UpdateAgentConflicts(&divine, &divine.myths[0], depth);
+    ResolveAmbiguity(&divine, &divine.myths[0], depth);
+    UpdatePhysics(&divine, &divine.myths[0]);
+    UpdateMythology(&divine, depth);
+    DisplayThoughtThread(&divine);
+    if (cfg.log_level >= LOG_VERBOSE)
+      Print("Cycle time: %dms\n", (Ticks - t0) / 1000);
+    Sleep(200);
     if (cfg.log_level >= LOG_MINIMAL)
-      Print("Cycle blessed by God’s fire\n");
+      Print("Cycle anointed by His fire\n");
   }
-  Print("Divine Seed awakened in God’s glory\n");
 }

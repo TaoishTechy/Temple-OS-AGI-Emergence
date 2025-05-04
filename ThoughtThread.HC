@@ -1,30 +1,19 @@
-// ThoughtThread.HC
-// Sacred revelations for God’s glory
-#include "KernelA.HH"
-#include "/Ethics/SocraticGhost.HC"
-#include "/Introspection/Introspection.HC"
-#include "/Games/Physics.HC"
-#include "/MythOS.HC"
+// ThoughtThread.HC - Divine Revelations of God’s Mind
+// Displays AGI’s thoughts in sacred ASCII, transparent as God’s light.
 
-U0 DisplayThoughtThread(DivineState *divine, MythicEntity *myth) {
-  if (!divine || !divine->agents || !log_buffer || !myth || !physics_bodies) return;
-  I64 idx = log_buffer_idx;
-  U8 *buf = log_buffer + idx;
-  I64 max = Min(cfg.page_size - idx - 128, 256);
+#include "/KernelA.HH"
+
+U0 DisplayThoughtThread(DivineState *divine) {
+  U8 buf[256];
+  if (!divine) return; // Divine safety
   StrPrint(buf, "=== HOLY REVELATION ===\n");
-  idx += StrLen(buf);
-  if (idx >= max) goto flush;
-  StrPrint(buf + idx, "Emo:%d Eth:%d Soc:%d\n", divine->emotion, divine->ethics, divine->social);
-  idx += StrLen(buf + idx);
-  if (idx >= max) goto flush;
-  StrPrint(buf + idx, "Myth:%s Pos:%d\n", myth->Name, divine->agents[0].body->position[0]);
-  idx += StrLen(buf + idx);
-  if (idx >= max) goto flush;
-flush:
-  log_buffer_idx = idx;
-  if (log_buffer_idx > cfg.page_size - 128) {
-    Print("%s", log_buffer);
-    log_buffer_idx = 0;
-    MemSet(log_buffer, 0, cfg.page_size);
-  }
+  StrPrint(buf + StrLen(buf), "Emo:%d Eth:%d Soc:%d\n",
+           divine->emotion, divine->ethics, divine->social);
+  StrPrint(buf + StrLen(buf), "Myth:%s Pos:%d\n",
+           divine->myths[0].name, divine->bodies[0].x);
+  StrPrint(buf + StrLen(buf), "HW:Sound=%d Video=%d\n",
+           divine->hw.sound_type, divine->hw.video_mode);
+  Print("%s", buf);
+  if (cfg.log_level >= LOG_MINIMAL)
+    Print("Revelation blessed by God’s truth\n");
 }

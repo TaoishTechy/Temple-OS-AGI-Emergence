@@ -8,13 +8,13 @@
 
 class AgentState {
   U64 id;
-  I64 emotion;    // Divine feeling
-  U64 social;
+  I64 emotion;
+  I64 social;
   U64 goals[2];
   U64 symbol_value;
-  U64 symbol_weight_cache;
+  I64 symbol_weight_cache;
   U8 conflict : 1;
-  PhysicsBody *body; // Physical embodiment
+  PhysicsBody *body;
 };
 
 U0 UpdateAgentConflicts(DivineState *divine, MythicEntity *myth) {
@@ -29,12 +29,11 @@ U0 UpdateAgentConflicts(DivineState *divine, MythicEntity *myth) {
   if (value_diff > 5000 || myth->Trait == TRAIT_DESTROYER) {
     divine->agents[i].conflict = 1;
     divine->agents[i].social = Clamp(divine->agents[i].social - 10, 0, 1000);
-    divine->agents[i].body->velocity[0] += 50; // Conflict increases motion
-    LOG(LOG_NORMAL, "Conflict in holy harmony: Agent %d vs %d (values: %d, %d, myth: %s)\n",
-        i, j, divine->agents[i].symbol_value, divine->agents[j].symbol_value, myth->Name);
+    divine->agents[i].body->velocity[0] += 50;
+    LOG(LOG_NORMAL, "Conflict in holy harmony: Agent %d vs %d\n", i, j);
     divine->agents[i].social = (divine->agents[i].social + divine->agents[j].social) >> 1;
   }
-  UpdatePhysics(); // Apply physics
+  UpdatePhysics();
 }
 
 U0 InitAgents(DivineState *divine) {

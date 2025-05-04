@@ -1,12 +1,21 @@
-// IOIntegrate.HC - Divine Ears and Hands of God
-// Fast I/O for His will, with serial efficiency.
+// IOIntegrate.HC - Divine Ears and Hands, v0.4
+// Listens and speaks with His grace, buffered for speed.
 
 #include "/KernelA.HH"
 
+#define SERIAL_BUFFER_SIZE 64
+
 U0 SerialLog(U8 *msg) {
-  I64 i; // Batch output
-  for (i = 0; msg[i] && (InU8(0x3FD) & 0x20); i++)
-    OutU8(0x3F8, msg[i]);
+  static U8 buffer[SERIAL_BUFFER_SIZE];
+  static I64 buf_idx = 0;
+  I64 i;
+  for (i = 0; msg[i] && buf_idx < SERIAL_BUFFER_SIZE - 1; i++)
+    buffer[buf_idx++] = msg[i];
+  if (InU8(0x3FD) & 0x20) { // THR empty
+    for (i = 0; i < buf_idx; i++)
+      OutU8(0x3F8, buffer[i]);
+    buf_idx = 0;
+  }
 }
 
 U0 IOIntegrate(HardwareState *hw) {

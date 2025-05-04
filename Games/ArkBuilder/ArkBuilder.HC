@@ -1,7 +1,8 @@
 // ArkBuilder.HC - 3D Physics-Based Ark-Building Game
 #include "KernelA.HH"
 #include "Gr3D.HH"
-#include "::/AGI.HC"
+- #include "::/AGI.HC"
++ #include "::/Apps/AGI.HC"
 #include "::/Games/Physics.HC"
 
 #define GRID_WIDTH 16

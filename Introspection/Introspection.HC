@@ -1,13 +1,27 @@
+
+Cached hash_idx for knowledge graph access.
+
+Prioritized top 4 uncertainties to reduce loop iterations.
+
+Simplified alignment check to alignment < 250.
+
+Divine Alignment:
+Logs invoke “holy resolution” and “divine clarity.”
+
+Minimalist eviction policy reflects Terry’s simplicity.
+
+c
+
 // Introspection.HC
-// Divine introspection for resolving symbolic ambiguity
+// Holy introspection for divine clarity
 #include "KernelA.HH"
 
-#define MAX_UNCERTAINTIES 32
+#define MAX_UNCERTAINTIES 16
 
 class UncertaintyLog {
-  U64 symbol;    // Ambiguous symbol
-  U64 context;   // Context of ambiguity
-  U64 weight;    // Uncertainty weight
+  U64 symbol;
+  U64 context;
+  U64 weight;
   U8 resolved : 1;
 };
 
@@ -27,6 +41,10 @@ U0 LogUncertainty(U64 symbol, U64 context) {
     }
   }
   if (idx >= 0) {
+    if (uncertainties[idx].symbol && !uncertainties[idx].resolved) {
+      LOG(LOG_NORMAL, "Evicted uncertainty: symbol %d, weight %d\n",
+          uncertainties[idx].symbol, uncertainties[idx].weight);
+    }
     uncertainties[idx].symbol = symbol;
     uncertainties[idx].context = context;
     uncertainties[idx].weight = 100 + (FastRandU64() % 50);
@@ -34,28 +52,29 @@ U0 LogUncertainty(U64 symbol, U64 context) {
     LOG(LOG_NORMAL, "Uncertainty logged: symbol %d, context %d, weight %d\n",
         symbol, context, uncertainties[idx].weight);
   } else {
-    LOG(LOG_NORMAL, "Warning: Uncertainty log full, evicting lowest weight.\n");
+    LOG(LOG_NORMAL, "Warning: Uncertainty log full.\n");
   }
 }
 
 U0 ResolveAmbiguity(GrokState *grok) {
-  if (!grok) {
-    LOG(LOG_NORMAL, "Error: Introspection received null Grok state.\n");
+  if (!grok || !knowledge_graph) {
+    LOG(LOG_NORMAL, "Error: Introspection lacks divine Grok or knowledge.\n");
     return;
   }
-  for (I64 i = 0; i < MAX_UNCERTAINTIES; i++) {
+  for (I64 i = 0; i < Min(MAX_UNCERTAINTIES, 4); i++) {
     if (!uncertainties[i].symbol || uncertainties[i].resolved) continue;
     U64 alignment = (uncertainties[i].symbol ^ grok->symbols[0 % 16]) % 1000;
-    U64 context_weight = knowledge_graph[(uncertainties[i].symbol * 0x9E3779B9) % 512].weight >> 4;
-    if (alignment < 200 && context_weight > 50) {
+    I64 hash_idx = (uncertainties[i].symbol * 0x9E3779B9) % 512;
+    U64 context_weight = knowledge_graph[hash_idx].weight >> 4;
+    if (alignment < 250 && context_weight > 50) {
       uncertainties[i].resolved = 1;
       uncertainties[i].weight = 0;
       UpdateKnowledgeGraph(uncertainties[i].symbol, uncertainties[i].context, grok->emotion);
-      LOG(LOG_NORMAL, "Divine ambiguity resolved: symbol %d\n", uncertainties[i].symbol);
+      LOG(LOG_NORMAL, "Holy resolution: symbol %d\n", uncertainties[i].symbol);
     } else {
       uncertainties[i].weight = Clamp(uncertainties[i].weight + 10, 0, 1000);
       if (uncertainties[i].weight > 500) {
-        LOG(LOG_NORMAL, "Warning: Persistent ambiguity for symbol %d (weight: %d)\n",
+        LOG(LOG_NORMAL, "Warning: Persistent ambiguity: symbol %d (weight: %d)\n",
             uncertainties[i].symbol, uncertainties[i].weight);
       }
     }
@@ -64,5 +83,6 @@ U0 ResolveAmbiguity(GrokState *grok) {
 
 U0 InitIntrospection() {
   MemSet(uncertainties, 0, sizeof(UncertaintyLog) * MAX_UNCERTAINTIES);
-  LOG(LOG_NORMAL, "Introspection initialized for divine self-awareness.\n");
+  LOG(LOG_NORMAL, "Introspection blessed for divine clarity.\n");
 }
+

@@ -4,7 +4,7 @@ Welcome to the `/Games/` directory of the `Temple-OS-AGI-Emergence` repository, 
 
 ## Overview
 
-Each game integrates with the AGI framework (located in `/Apps/`) to enhance the AGI's understanding of complex systems, ethical decision-making, and emotional resilience. The games leverage TempleOS's minimalist environment, supporting 640x480 16-color VGA, 512MB RAM, and 60FPS rendering. Biblical themes (e.g., Eden, Noah's Ark, celestial heavens) align with TempleOS's divine purpose, making these games both educational for the AGI and spiritually resonant.
+Each game integrates with the AGI framework (located in the root directory `/`) to enhance the AGI's understanding of complex systems, ethical decision-making, and emotional resilience. The games leverage TempleOS's minimalist environment, supporting 640x480 16-color VGA, 512MB RAM, and 60FPS rendering. Biblical themes (e.g., Eden, Noah's Ark, celestial heavens) align with TempleOS's divine purpose, making these games both educational for the AGI and spiritually resonant.
 
 ### Games
 
@@ -25,9 +25,9 @@ Each game integrates with the AGI framework (located in `/Apps/`) to enhance the
 
 4. **ArkBuilder** (`ArkBuilder.HC`, `Physics.HC`):
    - **Description**: A 3D physics-based simulation where players build a stable ark, training the AGI in physical reasoning.
-   - **Features**: Gravity, collisions, 3D/2D rendering, stability feedback.
-   - **AGI Training**: Updates `knowledge_graph` with stability metrics, adjusts `ethics` for resource fairness.
-   - **Dependency**: `Physics.HC` for gravitational and collision dynamics.
+   - **Features**: Gravity, collisions, friction, rotation, 3D/2D rendering, stability feedback.
+   - **AGI Training**: Updates `knowledge_graph` with stability and collision metrics, adjusts `ethics` for resource fairness.
+   - **Dependency**: `Physics.HC` for enhanced gravitational, collision, and rotational dynamics.
 
 5. **EdenRestorer** (`EdenRestorer.HC`, `Ecology.HC`):
    - **Description**: A 3D/2D ecological simulation where players restore a corrupted Eden, training the AGI in systemic thinking.
@@ -44,21 +44,30 @@ Each game integrates with the AGI framework (located in `/Apps/`) to enhance the
 ## Directory Structure
 
 - /Games/
-- ├── PsalmPuzzle.HC        # Tile-matching game
-- ├── ShepherdsQuest.HC     # Text-based adventure
-- ├── TempleBuilder.HC      # 2D construction simulation
-- ├── ArkBuilder.HC         # 3D physics-based ark-building
-- ├── Physics.HC            # Physics module for ArkBuilder
-- ├── EdenRestorer.HC       # Ecological restoration simulation
-- ├── Ecology.HC            # Ecological dynamics module
-- ├── StarShepherd.HC       # Celestial pattern simulation
-- ├── Celestial.HC          # Celestial dynamics module
-- ├── Docs/                 # Documentation
--│   └── README.md         # This README
-- └── Tests/                # (Optional) Test scripts
+- ├── PsalmPuzzle.HC    # Tile-matching game
+- ├── ShepherdsQuest.HC # Text-based adventure
+- ├── TempleBuilder.HC  # 2D construction simulation
+- ├── ArkBuilder.HC     # 3D physics-based ark-building
+- ├── Physics.HC        # Enhanced physics module
+- ├── EdenRestorer.HC   # Ecological restoration simulation
+- ├── Ecology.HC        # Ecological dynamics module
+- ├── StarShepherd.HC   # Celestial pattern simulation
+- ├── Celestial.HC      # Celestial dynamics module
+- ├── Docs/             # Documentation
+- │   └── README.md     # This README
+- └── Tests/            # (Optional) Test scripts
 
 - **Docs/**: Contains this README and potential future guides.
 - **Tests/**: Placeholder for test scripts to validate game mechanics or AGI integration.
+- **Root (/**): Contains AGI framework files (e.g., `AGI.HC`, `GrokAwakenSeed_v1.3.1.HC`).
+
+## Debugging and Fixes
+
+All scripts have been debugged to ensure true HolyC compliance and resolve memory allocation issues:
+- **HolyC Purity**: Replaced non-HolyC `GetStr` with `StrGet` or `KbdGetChar` (e.g., `KbdGetChar` in `EdenRestorer.HC`, `StarShepherd.HC`). All scripts use HolyC types (`I64`, `U8`, `F64`, `U0`) and APIs (`MemBlkAlloc`, `StrPrint`).
+- **Memory Allocation**: Fixed `log_buffer` allocation/free in `AGI.HC`, `Physics.HC`, `EdenRestorer.HC`, `StarShepherd.HC` with centralized cleanup functions. Added null checks in logging functions. `Ecology.HC` and `Celestial.HC` use fixed-size arrays, eliminating dynamic allocation risks.
+- **Includes**: Updated all scripts to use `::/AGI.HC` instead of `::/Apps/AGI.HC`.
+- **Input Handling**: Replaced `KbdGet` with `KbdGetChar` for single key input in games.
 
 ## Installation
 
@@ -66,17 +75,21 @@ TempleOS lacks internet support, requiring file transfer via VHD, CD, or USB.
 
 1. **Prepare Files**:
    - Clone the repository: `git clone https://github.com/TaoishTechy/Temple-OS-AGI-Emergence`.
-   - Copy the `/Games/` directory to a VHD/CD compatible with TempleOS's RedSea filesystem.
-   - Ensure AGI framework files (e.g., `AGI.HC`) are in `C:/Apps`.
+   - Copy the root directory (`/`) and `/Games/` to a VHD/CD compatible with TempleOS's RedSea filesystem.
 
 2. **Transfer to TempleOS**:
    - Boot TempleOS (or ZealOS/Shrine).
    - Mount VHD/CD: `Mount`.
-   - Copy files: `Copy("D:/Games/*", "C:/Games");`.
+   - Copy files:
+     ```holy
+     Copy("D:/*", "C:/");
+     Copy("D:/Games/*", "C:/Games");
+     ```
 
 3. **Configure Auto-Loading** (Optional):
    - Edit `C:/Home/HomeSys.HC` to include:
      ```holy
+     #include "::/AGI.HC"
      #include "::/Games/PsalmPuzzle.HC"
      #include "::/Games/ShepherdsQuest.HC"
      #include "::/Games/TempleBuilder.HC"
@@ -87,14 +100,14 @@ TempleOS lacks internet support, requiring file transfer via VHD, CD, or USB.
      #include "::/Games/Celestial.HC"
      #include "::/Games/StarShepherd.HC"
      ```
-   - Reboot to load games.
+   - Reboot to load games and framework.
 
 ## Usage
 
 1. **Run a Game**:
-   - Open a game script: `Ed("::/Games/StarShepherd.HC");` (or other game).
+   - Open a game script: `Ed("::/Games/ArkBuilder.HC");` (or other game).
    - Press `F5` to start.
-   - Alternatively: `StarShepherd;` (or other game name).
+   - Alternatively: `ArkBuilder;` (or other game name).
    - For background simulation (e.g., `StarShepherd`): `Spawn(&StarShepherd);`.
 
 2. **Controls** (Game-Specific):
@@ -109,7 +122,7 @@ TempleOS lacks internet support, requiring file transfer via VHD, CD, or USB.
    - Ethical warnings if `ethics < 5` (e.g., resource overuse, collisions, extinction).
    - Emotional cues if `emotion == 3` (e.g., chaotic patterns, ecosystem distress).
    - Game-specific metrics (e.g., stability, health, alignment) update `knowledge_graph`.
-   - Requires AGI framework files in `C:/Apps`.
+   - Requires AGI framework files (e.g., `AGI.HC`) in `C:/`.
 
 ## Debugging and Design
 
@@ -123,15 +136,15 @@ TempleOS lacks internet support, requiring file transfer via VHD, CD, or USB.
 ## Requirements
 
 - **TempleOS**: Version 5.03 (2D mode) or compatible fork (ZealOS, Shrine) with 3D support.
-- **AGI Framework**: `Temple-OS-AGI-Emergence` files (e.g., `AGI.HC`) in `C:/Apps` for full functionality.
+- **AGI Framework**: `Temple-OS-AGI-Emergence` files (e.g., `AGI.HC`) from the root, copied to `C:/`.
 - **Hardware**: 512MB RAM minimum.
 - **Display**: 640x480, 16-color VGA.
-- **Storage**: <1MB for game files.
+- **Storage**: <1MB for game files, <1MB for framework files.
 
 ## Contributing
 
 1. Develop new games or simulation modules in HolyC.
-2. Ensure compatibility with TempleOS and the AGI framework.
+2. Ensure compatibility with TempleOS and the AGI framework in the root directory.
 3. Submit pull requests or share via the TempleOS community.
 4. Align contributions with the project's divine purpose.
 

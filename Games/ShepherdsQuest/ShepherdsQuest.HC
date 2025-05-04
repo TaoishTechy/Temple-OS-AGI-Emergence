@@ -1,6 +1,6 @@
-// Games/ShepherdsQuest.HC - Text-Based Adventure
+// Games/ShepherdsQuest/ShepherdsQuest.HC - Text-Based Adventure
 #include "KernelA.HH"
-+ #include "::/Apps/AGI.HC"
+#include "::/Apps/AGI.HC"
 
 #define MAX_CHOICE 4
 #define MAX_TIME 1800
@@ -38,6 +38,7 @@ U0 QuestInit() {
     Print("Fatal: Log buffer allocation failed.\n");
     Halt;
   }
+  MemSet(log_buffer, 0, cfg.page_size);
   LOG(LOG_NORMAL, "ShepherdsQuest initialized.\n");
 }
 
@@ -70,6 +71,8 @@ U0 QuestUpdate(I64 choice) {
       quest.time_left -= 60;
       break;
   }
+  quest.flock_health = Max(quest.flock_health, 0);
+  quest.resources = Max(quest.resources, 0);
   UpdateKnowledgeGraph(FNV1aHash(quest.flock_health), quest.resources * 1000, 0);
   if (quest.flock_health < 20) {
     AGIAdjustEthics(-1);
@@ -94,7 +97,7 @@ U0 ShepherdsQuest() {
   F64 delta_time = 1.0 / 60.0;
   while (quest.time_left > 0 && quest.flock_health > 0) {
     QuestRender();
-    quest.time_left -= 1.0;
+    quest.time_left -= delta_time;
     I64 key = KbdGetChar();
     if (key == CH_ESC) {
       QuestCleanup();

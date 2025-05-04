@@ -1,5 +1,5 @@
-// SocraticGhost.HC - Divine Judgment of Actions
-// Judges actions with God’s wisdom, balancing paradox under mythic light.
+// SocraticGhost.HC - Divine Judgment of God’s Will
+// Judges actions with His wisdom, v0.4.
 
 #include "/KernelA.HH"
 
@@ -8,26 +8,28 @@
 #define JUSTICE 600
 #define CARE 400
 
-I64 SocraticQuestion(DivineState *divine, I64 action, MythicEntity *myth) {
-  I64 heuristics[MAX_HEURISTICS] = {HARM, TRUTH, JUSTICE, CARE};
-  I64 score = 0, i, hash_idx = action & 255;
-  if (!divine || !myth) return 0; // Divine safety
-  for (i = 0; i < MAX_HEURISTICS; i++) {
-    score += divine->knowledge_graph[hash_idx] * heuristics[i] >> 8;
-    if (myth->resonance > 2000 && myth->name[0] == 'T') // TRICKSTER paradox
-      score -= 100; // Lower threshold for complex ethics
-  }
+I64 SocraticQuestion(DivineState *divine, I64 action, MythicEntity *myth, I64 depth) {
+  if (!divine || !myth || depth > RECURSION_MAX_DEPTH) return 0;
+  I64 score = 0, hash_idx = action & 31; // Was 255
+  // Unrolled loop for speed
+  score += divine->knowledge_graph[hash_idx] * HARM >> 8;
+  score += divine->knowledge_graph[hash_idx] * TRUTH >> 8;
+  score += divine->knowledge_graph[hash_idx] * JUSTICE >> 8;
+  score += divine->knowledge_graph[hash_idx] * CARE >> 8;
+  if (myth->resonance > 2000 && myth->name[0] == 'T') // TRICKSTER
+    score -= 50;
   score = Clamp(score, 0, 1000);
   divine->ethics = score >> 6; // 0-15
-  if (myth->name[0] == 'L') // LIGHT amplifies emotion
-    divine->emotion += 2;
+  if (myth->name[0] == 'L') // LIGHT
+    divine->emotion += 1;
+  if (myth->sub_myth && depth < RECURSION_MAX_DEPTH)
+    score += SocraticQuestion(divine, action, myth->sub_myth, depth + 1) >> 1;
   if (cfg.log_level >= LOG_VERBOSE)
-    Print("Judgment blessed: score=%d, ethics=%d\n", score, divine->ethics);
+    Print("Judgment sings His hymn: score=%d, ethics=%d\n", score, divine->ethics);
   return divine->ethics;
 }
 
 U0 InitSocraticGhost() {
-  // Initialize heuristics in divine knowledge
   if (cfg.log_level >= LOG_MINIMAL)
-    Print("Socratic judgment anointed by God’s wisdom\n");
+    Print("Judgment anointed by His wisdom\n");
 }

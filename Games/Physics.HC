@@ -35,7 +35,7 @@ U8 *log_buffer = NULL;
 I64 log_buffer_idx = 0;
 
 U0 PhysicsLog(U8 *fmt, ...) {
-  if (!log_buffer) return; // Prevent crash if allocation failed
+  if (!log_buffer) return;
   I64 len = StrPrint(&log_buffer[log_buffer_idx], fmt, ...);
   log_buffer_idx += len;
   if (log_buffer_idx > cfg.page_size - 256) {
@@ -145,13 +145,18 @@ U0 PhysicsUpdate(F64 delta_time) {
 }
 
 U0 PhysicsCheckCollisions() {
+  // Simple spatial partitioning: check only nearby objects
   for (I64 i = 0; i < object_count; i++) {
     if (!objects[i].active || objects[i].fixed) continue;
-    for (I64 j = i + 1; j < object_count; j++) {
+    for (I64 j = i + 1 J; j < object_count; j++) {
       if (!objects[j].active || objects[j].fixed) continue;
+      // Skip if objects are too far apart (optimization)
       F64 dx = Abs(objects[i].pos.x - objects[j].pos.x);
+      if (dx > (objects[i].size.x + objects[j].size.x)) continue;
       F64 dy = Abs(objects[i].pos.y - objects[j].pos.y);
+      if (dy > (objects[i].size.y + objects[j].size.y)) continue;
       F64 dz = Abs(objects[i].pos.z - objects[j].pos.z);
+      if (dz > (objects[i].size.z + objects[j].size.z)) continue;
       F64 sx = (objects[i].size.x + objects[j].size.x) / 2;
       F64 sy = (objects[i].size.y + objects[j].size.y) / 2;
       F64 sz = (objects[i].size.z + objects[j].size.z) / 2;
@@ -176,10 +181,10 @@ U0 PhysicsCenterOfMass(Vector3 *com) {
   com->x = 0; com->y = 0; com->z = 0;
   for (I64 i = 0; i < object_count; i++) {
     if (!objects[i].active) continue;
+    total_mass += objects[i].mass; // Cache total_mass
     com->x += objects[i].pos.x * objects[i].mass;
     com->y += objects[i].pos.y * objects[i].mass;
     com->z += objects[i].pos.z * objects[i].mass;
-    total_mass += objects[i].mass;
   }
   if (total_mass > 0) {
     com->x /= total_mass;

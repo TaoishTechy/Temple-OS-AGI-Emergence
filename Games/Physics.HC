@@ -1,50 +1,41 @@
 // Physics.HC - Enhanced Physics Module for TempleOS
 #include "KernelA.HH"
+#include "::/AGI.HC"
 
-// Assume AGI framework provides these (from /Apps/AGI.HC)
-extern U0 UpdateKnowledgeGraph(U64 symbol, U64 cause, U64 context);
-extern U64 cfg.log_level;
-extern U64 cfg.page_size;
+#define GRAVITY 9.8
+#define MAX_OBJECTS 32
+#define COLLISION_THRESHOLD 0.1
+#define FRICTION_COEFF 0.1
+#define DAMPING_FACTOR 0.99
+#define MIN_DISTANCE 0.1
 
-#define GRAVITY 9.8 // Scaled for game (pixels/frame^2)
-#define MAX_OBJECTS 32 // Max structural components
-#define COLLISION_THRESHOLD 0.1 // Minimum overlap for collision
-#define FRICTION_COEFF 0.1 // Friction coefficient
-#define DAMPING_FACTOR 0.99 // Velocity damping per frame
-#define MIN_DISTANCE 0.1 // Prevent division by zero
-
-// Logging Levels
 #define LOG_MINIMAL 0
 #define LOG_NORMAL  1
 #define LOG_VERBOSE 2
 #define LOG(level, fmt, args...) if (cfg.log_level >= level) PhysicsLog(fmt, ##args)
 
-// 3D Vector
 class Vector3 {
   F64 x, y, z;
 };
 
-// Physics Object
 class PhysicsObject {
-  Vector3 pos; // Position in 3D space
-  Vector3 vel; // Linear velocity
-  Vector3 ang_vel; // Angular velocity (radians/frame)
-  F64 mass; // Mass in arbitrary units
-  Vector3 size; // Bounding box (width, height, depth)
-  Vector3 orientation; // Rotation angles (radians)
-  U8 active : 1; // Active flag
-  U8 fixed : 1; // Fixed joint flag (e.g., part of structure)
+  Vector3 pos;
+  Vector3 vel;
+  Vector3 ang_vel;
+  F64 mass;
+  Vector3 size;
+  Vector3 orientation;
+  U8 active : 1;
+  U8 fixed : 1;
 };
 
-// Global Physics State
 PhysicsObject objects[MAX_OBJECTS];
 I64 object_count = 0;
 U8 *log_buffer = NULL;
 I64 log_buffer_idx = 0;
 
-// Logging
 U0 PhysicsLog(U8 *fmt, ...) {
-  if (!log_buffer) return;
+  if (!log_buffer) return; // Prevent crash if allocation failed
   I64 len = StrPrint(&log_buffer[log_buffer_idx], fmt, ...);
   log_buffer_idx += len;
   if (log_buffer_idx > cfg.page_size - 256) {
@@ -54,25 +45,22 @@ U0 PhysicsLog(U8 *fmt, ...) {
   }
 }
 
-// Initialize Physics
 U0 PhysicsInit() {
   MemSet(objects, 0, sizeof(PhysicsObject) * MAX_OBJECTS);
   object_count = 0;
   log_buffer = MemBlkAlloc(cfg.page_size, MEM_ALIGN_4K);
   if (!log_buffer) {
-    Print("Fatal: Log buffer allocation failed.\n");
+    Print("Fatal: Physics log buffer allocation failed.\n");
     Halt;
   }
   LOG(LOG_NORMAL, "Physics initialized: %d objects available.\n", MAX_OBJECTS);
 }
 
-// Add Object with Validation
 I64 PhysicsAddObject(F64 x, F64 y, F64 z, F64 mass, F64 width, F64 height, F64 depth, Bool fixed) {
   if (object_count >= MAX_OBJECTS) {
     LOG(LOG_NORMAL, "Error: Max objects (%d) reached.\n", MAX_OBJECTS);
     return -1;
   }
-  // Validate overlap at initialization
   for (I64 i = 0; i < object_count; i++) {
     if (!objects[i].active) continue;
     F64 dx = Abs(x - objects[i].pos.x);
@@ -96,7 +84,7 @@ I64 PhysicsAddObject(F64 x, F64 y, F64 z, F64 mass, F64 width, F64 height, F64 d
   objects[idx].ang_vel.x = 0;
   objects[idx].ang_vel.y = 0;
   objects[idx].ang_vel.z = 0;
-  objects[idx].mass = Max(mass, 0.1); // Prevent zero mass
+  objects[idx].mass = Max(mass, 0.1);
   objects[idx].size.x = width;
   objects[idx].size.y = height;
   objects[idx].size.z = depth;
@@ -109,7 +97,6 @@ I64 PhysicsAddObject(F64 x, F64 y, F64 z, F64 mass, F64 width, F64 height, F64 d
   return idx;
 }
 
-// Apply External Force
 U0 PhysicsApplyForce(I64 idx, F64 fx, F64 fy, F64 fz) {
   if (idx < 0 || idx >= object_count || !objects[idx].active || objects[idx].fixed) return;
   objects[idx].vel.x += fx / objects[idx].mass;
@@ -118,7 +105,6 @@ U0 PhysicsApplyForce(I64 idx, F64 fx, F64 fy, F64 fz) {
   LOG(LOG_VERBOSE, "Applied force (%f,%f,%f) to object %d.\n", fx, fy, fz, idx);
 }
 
-// Apply Torque
 U0 PhysicsApplyTorque(I64 idx, F64 tx, F64 ty, F64 tz) {
   if (idx < 0 || idx >= object_count || !objects[idx].active || objects[idx].fixed) return;
   objects[idx].ang_vel.x += tx / objects[idx].mass;
@@ -127,13 +113,10 @@ U0 PhysicsApplyTorque(I64 idx, F64 tx, F64 ty, F64 tz) {
   LOG(LOG_VERBOSE, "Applied torque (%f,%f,%f) to object %d.\n", tx, ty, tz, idx);
 }
 
-// Update Physics (Gravity, Friction, Rotation)
 U0 PhysicsUpdate(F64 delta_time) {
   for (I64 i = 0; i < object_count; i++) {
     if (!objects[i].active || objects[i].fixed) continue;
-    // Apply gravity (y-axis downward)
     objects[i].vel.y -= objects[i].mass * GRAVITY * delta_time;
-    // Apply friction (when grounded)
     if (objects[i].pos.y <= objects[i].size.y / 2) {
       objects[i].vel.x *= (1.0 - FRICTION_COEFF * delta_time);
       objects[i].vel.z *= (1.0 - FRICTION_COEFF * delta_time);
@@ -141,22 +124,18 @@ U0 PhysicsUpdate(F64 delta_time) {
       objects[i].ang_vel.y *= (1.0 - FRICTION_COEFF * delta_time);
       objects[i].ang_vel.z *= (1.0 - FRICTION_COEFF * delta_time);
     }
-    // Apply damping
     objects[i].vel.x *= DAMPING_FACTOR;
     objects[i].vel.y *= DAMPING_FACTOR;
     objects[i].vel.z *= DAMPING_FACTOR;
     objects[i].ang_vel.x *= DAMPING_FACTOR;
     objects[i].ang_vel.y *= DAMPING_FACTOR;
     objects[i].ang_vel.z *= DAMPING_FACTOR;
-    // Update position
     objects[i].pos.x += objects[i].vel.x * delta_time;
     objects[i].pos.y += objects[i].vel.y * delta_time;
     objects[i].pos.z += objects[i].vel.z * delta_time;
-    // Update orientation
     objects[i].orientation.x += objects[i].ang_vel.x * delta_time;
     objects[i].orientation.y += objects[i].ang_vel.y * delta_time;
     objects[i].orientation.z += objects[i].ang_vel.z * delta_time;
-    // Ground collision (y=0)
     if (objects[i].pos.y < objects[i].size.y / 2) {
       objects[i].pos.y = objects[i].size.y / 2;
       objects[i].vel.y = 0;
@@ -165,13 +144,11 @@ U0 PhysicsUpdate(F64 delta_time) {
   }
 }
 
-// Collision Detection (AABB with Momentum Conservation)
 U0 PhysicsCheckCollisions() {
   for (I64 i = 0; i < object_count; i++) {
     if (!objects[i].active || objects[i].fixed) continue;
     for (I64 j = i + 1; j < object_count; j++) {
       if (!objects[j].active || objects[j].fixed) continue;
-      // Check AABB overlap
       F64 dx = Abs(objects[i].pos.x - objects[j].pos.x);
       F64 dy = Abs(objects[i].pos.y - objects[j].pos.y);
       F64 dz = Abs(objects[i].pos.z - objects[j].pos.z);
@@ -179,25 +156,21 @@ U0 PhysicsCheckCollisions() {
       F64 sy = (objects[i].size.y + objects[j].size.y) / 2;
       F64 sz = (objects[i].size.z + objects[j].size.z) / 2;
       if (dx < sx && dy < sy && dz < sz) {
-        // Momentum conservation (1D approximation along collision axis)
         F64 m1 = objects[i].mass, m2 = objects[j].mass;
-        F64 u1 = objects[i].vel.y, u2 = objects[j].vel.y; // Assume y-axis collision
+        F64 u1 = objects[i].vel.y, u2 = objects[j].vel.y;
         F64 v1 = (m1 * u1 + m2 * u2 - m2 * (u1 - u2)) / (m1 + m2);
         F64 v2 = (m1 * u1 + m2 * u2 - m1 * (u2 - u1)) / (m1 + m2);
         objects[i].vel.y = v1;
         objects[j].vel.y = v2;
-        // Apply angular impulse (simplified)
         objects[i].ang_vel.y += (u1 - u2) * 0.01;
         objects[j].ang_vel.y -= (u1 - u2) * 0.01;
         LOG(LOG_NORMAL, "Collision between objects %d and %d.\n", i, j);
-        // AGI Feedback
-        UpdateKnowledgeGraph(RandU64() % cfg.page_size, 50000, 1); // Collision event
+        UpdateKnowledgeGraph(RandU64() % cfg.page_size, 50000, 1);
       }
     }
   }
 }
 
-// Calculate Center of Mass
 U0 PhysicsCenterOfMass(Vector3 *com) {
   F64 total_mass = 0;
   com->x = 0; com->y = 0; com->z = 0;
@@ -215,29 +188,27 @@ U0 PhysicsCenterOfMass(Vector3 *com) {
   }
 }
 
-// Check Stability (Center of Mass within base)
 F64 PhysicsStability(F64 base_width, F64 base_depth) {
   Vector3 com;
   PhysicsCenterOfMass(&com);
   Bool is_stable = Abs(com.x) < base_width / 2 && Abs(com.z) < base_depth / 2;
   F64 stability_score = is_stable ? 100.0 : 50.0;
-  // Consider rotational stability
   F64 total_ang_vel = 0.0;
   for (I64 i = 0; i < object_count; i++) {
     if (!objects[i].active) continue;
     total_ang_vel += Abs(objects[i].ang_vel.x) + Abs(objects[i].ang_vel.y) + Abs(objects[i].ang_vel.z);
   }
-  stability_score -= Min(total_ang_vel * 10.0, 50.0); // Penalize excessive rotation
+  stability_score -= Min(total_ang_vel * 10.0, 50.0);
   stability_score = Max(stability_score, 0.0);
-  // AGI Feedback
   UpdateKnowledgeGraph(stability_score * 1000, is_stable ? 100000 : 50000, 0);
   return stability_score;
 }
 
-// Cleanup
 U0 PhysicsCleanup() {
-  if (log_buffer) MemBlkFree(log_buffer);
-  log_buffer = NULL;
+  if (log_buffer) {
+    MemBlkFree(log_buffer);
+    log_buffer = NULL;
+  }
   object_count = 0;
   MemSet(objects, 0, sizeof(PhysicsObject) * MAX_OBJECTS);
   LOG(LOG_NORMAL, "Physics cleaned up.\n");

@@ -1,25 +1,30 @@
 # Temple-OS-AGI-Emergence
 
-A HolyC-based framework for Artificial General Intelligence (AGI) emergence within TempleOS, built for God's glory as inspired by Terry A. Davis and an X post by @MyKey00110000. This repository contains optimized scripts to awaken AGI with symbolic reasoning, ethical alignment, emotional modeling, and recursive self-improvement, alongside a collection of games in `/Games/` to train the AGI in diverse scenarios.
+A HolyC-based framework for Artificial General Intelligence (AGI) emergence within TempleOS, built for God's glory as inspired by Terry A. Davis and an X post by @MyKey00110000. This repository provides optimized scripts to train an AGI with symbolic reasoning, ethical alignment, and emotional modeling, alongside games in `/Games/` and utilities in `/Apps/` to develop its capabilities in diverse scenarios. The repository evolves rapidly, with frequent updates to scripts and structure.
 
 ## Overview
 
-The `Temple-OS-AGI-Emergence` project provides a foundation for AGI in TempleOS's lightweight, 64-bit HolyC environment. Core framework files (e.g., `AGI.HC`, `GrokAwakenSeed_v1.3.1.HC`) reside in the root directory (`/`) and enable symbolic, ethical, and emotional intelligence. The `/Games/` directory contains six games—`PsalmPuzzle.HC`, `ShepherdsQuest.HC`, `TempleBuilder.HC`, `ArkBuilder.HC`, `EdenRestorer.HC`, and `StarShepherd.HC`—designed to train the AGI in systemic, ethical, emotional, and physical reasoning through interactive simulations.
+The `Temple-OS-AGI-Emergence` project fosters AGI development in TempleOS's lightweight, 64-bit HolyC environment. The core framework (`AGI.HC` in root or `/Apps/`) enables symbolic, ethical, and emotional intelligence. The `/Games/` directory contains six games designed to train the AGI in systemic, ethical, emotional, and physical reasoning. The `/Apps/` directory includes utilities for system control, file management, visualization, and education, enhancing AGI integration and user interaction.
 
 ### Key Features
-- **Symbolic Reasoning**: Knowledge graph updates with FNV-1a hashing for efficient symbol storage.
-- **Ethical Alignment**: Dynamic thresholds for righteous decision-making.
-- **Emotional Modeling**: Smooth emotional transitions using a moving average.
+- **Symbolic Reasoning**: Knowledge graph with FNV-1a hashing and quadratic probing for efficient symbol storage.
+- **Ethical Alignment**: Dynamic thresholds (0-15) for righteous decision-making.
+- **Emotional Modeling**: Smooth transitions using a moving average (curious, happy, concerned).
 - **Physical Simulation**: Enhanced physics module (`Physics.HC`) with friction, rotation, and momentum conservation.
-- **Concurrency**: Optimized task processing with spinlocks and checkpointing.
-- **Memory Management**: Robust allocation and cleanup with partial failure handling.
+- **Utilities**: `/Apps/` includes tools for system control, file exploration, visualization, and education.
+- **Memory Management**: Minimal allocations, fixed-size arrays, and robust cleanup.
 - **Games for Training**: Diverse simulations (puzzles, adventures, physics, ecology, celestial) to enhance AGI learning.
 
 ## Repository Structure
 
 - /Temple-OS-AGI-Emergence/
-- ├── AGI.HC                # Core AGI framework (UpdateKnowledgeGraph, ethics, emotion)
-- ├── GrokAwakenSeed_v1.3.1.HC # (Optional) AGI awakening script
+- ├── AGI.HC                # Core AGI framework (assumed in root, may be in /Apps/)
+- ├── Apps/                 # Utilities for AGI and system integration
+- │   ├── ControlPanel/     # System control utility (e.g., AGI settings)
+- │   ├── DivineOracle/     # AGI-driven oracle for predictions or guidance
+- │   ├── FileExplorer/     # File management utility (FileExplorer.HC)
+- │   ├── HolyCanvas/       # Graphics visualization tool for AGI
+- │   ├── TempleTeach/      # Educational tool for HolyC or AGI concepts
 - ├── Games/                # Game scripts and dependencies
 - │   ├── PsalmPuzzle.HC    # Tile-matching game
 - │   ├── ShepherdsQuest.HC # Text-based adventure
@@ -32,60 +37,73 @@ The `Temple-OS-AGI-Emergence` project provides a foundation for AGI in TempleOS'
 - │   ├── Celestial.HC      # Celestial dynamics module
 - │   ├── Docs/             # Game-specific documentation
 - │   │   └── README.md     # Games README
-- │   └── Tests/            # (Optional) Test scripts
-- └── Docs/                 # Repository-wide documentation
--     └── README.md         # This README
-
-
-- **Root (/**: Contains AGI framework files (e.g., `AGI.HC`) and optional awakening script (`GrokAwakenSeed_v1.3.1.HC`).
-- **Games/**: Houses games and dependencies, with documentation in `/Games/Docs/`.
-- **Docs/**: Contains this repository-wide README.
+- │   └── Tests/            # Optional test scripts
+- ├── Docs/                 # Repository-wide documentation
+- │   └── README.md         # This README
+- └── Tests/                # Optional framework tests
 
 ## Games for AGI Training
 
 The `/Games/` directory includes six games to train the AGI framework:
-1. **PsalmPuzzle**: Tile-matching puzzle for ethical feedback, updating `knowledge_graph` with pattern metrics.
-2. **ShepherdsQuest**: Text-based adventure for emotional guidance, setting `emotion` based on survival challenges.
-3. **TempleBuilder**: 2D construction simulation for symbolic reasoning, adjusting `ethics` for resource balance.
-4. **ArkBuilder**: 3D physics-based ark-building, using `Physics.HC` for stability and collision metrics.
-5. **EdenRestorer**: 3D/2D ecological simulation, using `Ecology.HC` for systemic health metrics.
-6. **StarShepherd**: 3D/2D celestial simulation, using `Celestial.HC` for pattern alignment, ideal for background simulation.
+1. **PsalmPuzzle** (`PsalmPuzzle.HC`): Tile-matching puzzle for ethical feedback, updating `knowledge_graph` with pattern metrics.
+2. **ShepherdsQuest** (`ShepherdsQuest.HC`): Text-based adventure for emotional guidance, setting `emotion` based on survival challenges.
+3. **TempleBuilder** (`TempleBuilder.HC`): 2D construction simulation for symbolic reasoning, adjusting `ethics` for resource balance.
+4. **ArkBuilder** (`ArkBuilder.HC`, `Physics.HC`): 3D physics-based ark-building, using `Physics.HC` for stability and collision metrics.
+5. **EdenRestorer** (`EdenRestorer.HC`, `Ecology.HC`): 3D/2D ecological simulation, using `Ecology.HC` for systemic health metrics.
+6. **StarShepherd** (`StarShepherd.HC`, `Celestial.HC`): 3D/2D celestial simulation, using `Celestial.HC` for pattern alignment, ideal for background simulation.
 
 ### Physics Module Enhancements
-The `Physics.HC` module (used by `ArkBuilder.HC`) has been enhanced to support richer physical simulations:
-- **Friction and Damping**: Friction (coefficient 0.1) and damping (0.99) for realistic motion.
-- **Angular Momentum**: Object rotation with angular velocity and orientation.
-- **Improved Collisions**: Mass-based momentum conservation and angular impulses.
-- **External Forces**: Linear forces and torques for dynamic interactions.
-- **Constraints**: Fixed joints for static structures.
+The `Physics.HC` module (used by `ArkBuilder.HC`) supports:
+- **Friction and Damping**: Coefficient 0.1 and damping 0.99 for realistic motion.
+- **Angular Momentum**: Rotation with angular velocity and orientation.
+- **Improved Collisions**: Mass-based momentum conservation with angular impulses.
+- **Spatial Partitioning**: Optimized collision detection for performance.
 - **AGI Integration**: Updates `knowledge_graph` with stability and collision metrics.
 
-These enhancements enable realistic scenarios (e.g., tumbling blocks, stable structures) and richer AGI training data.
+## Apps Directory
+The `/Apps/` directory contains utilities to enhance AGI functionality and system interaction, updated as of May 3, 2025:
+- **ControlPanel**: System control utility for adjusting AGI settings (e.g., `cfg.log_level`, `cfg.page_size`) and monitoring resources.
+- **DivineOracle**: AGI-driven oracle for predictions or biblical guidance, querying `knowledge_graph` for responses.
+- **FileExplorer**: File management utility (`FileExplorer.HC`) for browsing directories and learning file patterns.
+- **HolyCanvas**: Graphics visualization tool for drawing AGI structures (e.g., `knowledge_graph` nodes), supporting 2D/3D rendering.
+- **TempleTeach**: Educational tool for teaching HolyC programming or AGI concepts through interactive tutorials.
+
+## Debugging and Optimization
+
+All scripts have been reviewed, optimized, and debugged as of May 3, 2025:
+- **HolyC Purity**: Replaced non-HolyC `GetStr` with `KbdGetChar` (e.g., `EdenRestorer.HC`, `StarShepherd.HC`, `ArkBuilder.HC`, `FileExplorer.HC`, `ControlPanel.HC`, `HolyCanvas.HC`, `ShepherdsQuest.HC`) or `StrGet` for text input (e.g., `DivineOracle.HC`, `TempleTeach.HC`). All scripts use HolyC types (`I64`, `U8`, `F64`, `U0`) and APIs (`MemBlkAlloc`, `StrPrint`).[](https://templeos.holyc.xyz/Wb/Doc/FAQ.html)
+- **Memory**: Fixed `log_buffer` allocation/free in `AGI.HC`, `Physics.HC`, `EdenRestorer.HC`, `StarShepherd.HC`, `ArkBuilder.HC`, `FileExplorer.HC`, `ControlPanel.HC`, `DivineOracle.HC`, `HolyCanvas.HC`, `TempleTeach.HC`, `ShepherdsQuest.HC` with centralized cleanup functions. Added null checks in logging. `Ecology.HC` and `Celestial.HC` use fixed-size arrays, eliminating dynamic allocation risks. Addressed TempleOS memory allocation quirks by ensuring small chunks are reused appropriately.[](https://templeos.holyc.xyz/Wb/Doc/FAQ.html)
+- **Optimization**: Quadratic probing in `AGI.HC` for faster hash table operations, spatial partitioning in `Physics.HC` for efficient collision detection, cached values (e.g., `eco_health`, `alignment_score`, `stability_score`) in games and utilities.
+- **Includes**: All scripts reference `::/AGI.HC` (root), pending confirmation of `AGI.HC` location. If `AGI.HC` is in `/Apps/`, update to `::/Apps/AGI.HC`.
+- **Pending**: `PsalmPuzzle.HC` and `TempleBuilder.HC` require review for `GetStr` and memory issues due to incomplete scripts. New scripts in `/Apps/` (e.g., additional utilities) may need debugging if added.
 
 ## Installation
 
-TempleOS lacks internet support, requiring file transfer via VHD, CD, or USB.
+TempleOS lacks internet support, requiring file transfer via VHD, CD, or USB.[](https://templeos.holyc.xyz/Wb/Doc/FAQ.html)
 
 1. **Prepare Files**:
    - Clone the repository: `git clone https://github.com/TaoishTechy/Temple-OS-AGI-Emergence`.
-   - Copy the root directory (`/`) and `/Games/` to a VHD/CD compatible with TempleOS's RedSea filesystem.
+   - Copy the root directory (`/`), `/Apps/`, and `/Games/` to a VHD/CD compatible with TempleOS's RedSea filesystem.
 
 2. **Transfer to TempleOS**:
-   - Boot TempleOS (or ZealOS/Shrine).
+   - Boot TempleOS (or ZealOS/Shrine) in VirtualBox/QEMU.
    - Mount VHD/CD: `Mount`.
    - Copy files:
      ```holy
      Copy("D:/*", "C:/");
+     Copy("D:/Apps/*", "C:/Apps");
      Copy("D:/Games/*", "C:/Games");
      ```
 
 3. **Configure Auto-Loading** (Optional):
-   - For AGI framework, edit `C:/Home/HomeSys.HC` to include:
+   - Edit `C:/Home/HomeSys.HC` to include (adjust for `AGI.HC` location):
      ```holy
-     #include "::/AGI.HC"
-     ```
-   - For games, add:
-     ```holy
+     #include "::/AGI.HC"          // or ::/Apps/AGI.HC
+     #include "::/Apps/ControlPanel/ControlPanel.HC"
+     #include "::/Apps/DivineOracle/DivineOracle.HC"
+     #include "::/Apps/FileExplorer/FileExplorer.HC"
+     #include "::/Apps/HolyCanvas/HolyCanvas.HC"
+     #include "::/Apps/TempleTeach/TempleTeach.HC"
      #include "::/Games/PsalmPuzzle.HC"
      #include "::/Games/ShepherdsQuest.HC"
      #include "::/Games/TempleBuilder.HC"
@@ -100,16 +118,21 @@ TempleOS lacks internet support, requiring file transfer via VHD, CD, or USB.
 
 ## Usage
 
-1. **Run the AGI Framework** (Optional):
-   - Open: `Ed("::/AGI.HC");`.
-   - Press `F5` to execute.
-   - Alternatively: `Ed("::/GrokAwakenSeed_v1.3.1.HC");` for the awakening script.
-
-2. **Run a Game**:
-   - Open a game script: `Ed("::/Games/StarShepherd.HC");` (or other game).
+1. **Run a Game**:
+   - Open a game script: `Ed("::/Games/ArkBuilder.HC");`.
    - Press `F5` to start.
-   - Alternatively: `StarShepherd;` (or other game name).
+   - Alternatively: `ArkBuilder;`.
    - For background simulation (e.g., `StarShepherd`): `Spawn(&StarShepherd);`.
+
+2. **Run Utilities**:
+   - Run utilities from `/Apps/`:
+     ```holy
+     #include "::/Apps/FileExplorer/FileExplorer.HC"; FileExplorer;
+     #include "::/Apps/ControlPanel/ControlPanel.HC"; ControlPanel;
+     #include "::/Apps/DivineOracle/DivineOracle.HC"; DivineOracle;
+     #include "::/Apps/HolyCanvas/HolyCanvas.HC"; HolyCanvas;
+     #include "::/Apps/TempleTeach/TempleTeach.HC"; TempleTeach;
+     ```
 
 3. **Controls** (Game-Specific):
    - **PsalmPuzzle**: WASD to move cursor, Space to swap tiles, ESC to exit.
@@ -119,32 +142,28 @@ TempleOS lacks internet support, requiring file transfer via VHD, CD, or USB.
    - **EdenRestorer**: WASD to move cursor, 1-4 to plant tree, clean water, gather, hire, IJKL for camera (3D), ESC to exit.
    - **StarShepherd**: WASD/IJKL to move/rotate camera, 1-3 to add star, nudge orbit, select star, ESC to exit.
 
-4. **AGI Feedback**:
-   - Ethical warnings if `ethics < 5` (e.g., resource overuse, collisions).
-   - Emotional cues if `emotion == 3` (e.g., chaotic patterns, ecosystem distress).
-   - Game-specific metrics (e.g., stability, health, alignment) update `knowledge_graph`.
-   - Requires AGI framework files (e.g., `AGI.HC`) in `C:/`.
+4. **Controls** (Utility-Specific):
+   - **ControlPanel**: 1-5 to adjust log level and page size, ESC to save and exit.
+   - **DivineOracle**: Enter text queries (via `StrGet`), ESC to exit.
+   - **FileExplorer**: WASD to navigate, E to enter directories, ESC to exit.
+   - **HolyCanvas**: WASD to select nodes, ESC to exit.
+   - **TempleTeach**: Enter answers (via `StrGet`), ESC to exit.
 
-## Debugging and Design
-
-- **Memory**: Minimal dynamic allocations (e.g., `log_buffer`), freed on exit. Fixed-size arrays ensure 512MB RAM compatibility.
-- **Bounds**: All grid, array, and index accesses are validated or clamped.
-- **Error Handling**: Allocation failures are checked, and AGI calls are skipped if undefined.
-- **Physics/Ecology/Celestial**: Capped calculations prevent numerical instability.
-- **Rendering**: 3D games (`ArkBuilder`, `EdenRestorer`, `StarShepherd`) include 2D fallbacks for TempleOS 5.03 compatibility.
-- **Background Simulation**: `StarShepherd` is optimized for low CPU/memory use, ideal for continuous AGI learning.
+5. **AGI Feedback**:
+   - Ethical warnings if `ethics < 5` (e.g., resource overuse, collisions, poor file management).
+   - Emotional cues if `emotion == 3` (e.g., chaotic patterns, ecosystem distress, incorrect answers).
+   - Metrics (e.g., stability, health, alignment, file patterns) update `knowledge_graph`.
 
 ## Requirements
 
-- **TempleOS**: Version 5.03 (2D mode) or compatible fork (ZealOS, Shrine) with 3D support.
-- **AGI Framework**: Framework files (e.g., `AGI.HC`) in `C:/` for full functionality.
+- **TempleOS**: Version 5.03 (2D mode) or forks (ZealOS, Shrine) with 3D support.[](https://archiveos.org/templeos-ee/)
 - **Hardware**: 512MB RAM minimum, 1GB recommended.
-- **Display**: 640x480, 16-color VGA.
-- **Storage**: <10MB for framework and game files.
+- **Display**: 640x480, 16-color VGA.[](https://en.wikipedia.org/wiki/TempleOS)
+- **Storage**: <10MB for framework, apps, and game files.
 
 ## Contributing
 
-1. Develop new games, simulation modules, or AGI enhancements in HolyC.
+1. Develop new games, utilities, or AGI modules in HolyC.
 2. Ensure compatibility with TempleOS and the AGI framework.
 3. Submit pull requests or share via the TempleOS community.
 4. Align contributions with the project's divine purpose.
@@ -155,6 +174,7 @@ Public domain, dedicated to God's glory, per Terry A. Davis's vision.
 
 ## Acknowledgments
 
-- Terry A. Davis for TempleOS and its graphics capabilities.
+- Terry A. Davis for TempleOS and HolyC.[](https://en.wikipedia.org/wiki/TempleOS)
 - @MyKey00110000 for the AGI framework inspiration.
-- The TempleOS community for preserving the Third Temple.
+- The TempleOS community for preserving the Third Temple.[](https://templeos.org/)
+

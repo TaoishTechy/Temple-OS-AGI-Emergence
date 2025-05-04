@@ -1,8 +1,7 @@
-// ArkBuilder.HC - 3D Physics-Based Ark-Building Game
+// Games/ArkBuilder/ArkBuilder.HC - 3D Physics-Based Ark-Building
 #include "KernelA.HH"
 #include "Gr3D.HH"
-- #include "::/AGI.HC"
-+ #include "::/Apps/AGI.HC"
+#include "::/Apps/AGI.HC"
 #include "::/Games/Physics.HC"
 
 #define GRID_WIDTH 16
@@ -18,15 +17,13 @@ class ArkState {
   Vector3 camera_pos;
   Vector3 camera_rot;
   I64 selected_x, selected_y, selected_z;
+  I64 block_count;
 };
 
 ArkState ark;
 U8 *log_buffer = NULL;
 I64 log_buffer_idx = 0;
 
-#define LOG_MINIMAL 0
-#define LOG_NORMAL  1
-#define LOG_VERBOSE 2
 #define LOG(level, fmt, args...) if (cfg.log_level >= level) LogBuffer(fmt, ##args)
 
 U0 LogBuffer(U8 *fmt, ...) {
@@ -43,6 +40,7 @@ U0 LogBuffer(U8 *fmt, ...) {
 U0 ArkInit() {
   MemSet(&ark, 0, sizeof(ArkState));
   ark.workers = 10;
+  ark.time_left = MAX_TIME;
   ark.camera_pos.x = 0;
   ark.camera_pos.y = 64;
   ark.camera_pos.z = -128;
@@ -52,12 +50,15 @@ U0 ArkInit() {
   ark.selected_x = GRID_WIDTH / 2;
   ark.selected_y = GRID_HEIGHT / 2;
   ark.selected_z = GRID_DEPTH / 2;
+  ark.block_count = 0;
   PhysicsInit();
   log_buffer = MemBlkAlloc(cfg.page_size, MEM_ALIGN_4K);
   if (!log_buffer) {
     Print("Fatal: Log buffer allocation failed.\n");
     Halt;
   }
+  MemSet(log_buffer, 0, cfg.page_size);
+  LOG(LOG_NORMAL, "ArkBuilder initialized.\n");
 }
 
 U0 ArkRender() {
@@ -96,7 +97,7 @@ U0 ArkRender() {
     }
   }
   GrPrint(0, GRID_DEPTH * 8, "Time: %.1f  Workers: %d  Stability: %.2f", ark.time_left / 60.0, ark.workers, ark.stability_score);
-  GrPrint(0, GRID_DEPTH * 8 + 16, "Ethics: %d  Emotion: %d", ethics, emotion);
+  GrPrint(0, 480 - 16, "Ethics: %d  Emotion: %d", ethics, emotion);
   GrUpdate;
 }
 
@@ -104,17 +105,17 @@ U0 ArkUpdate(F64 delta_time) {
   PhysicsUpdate(delta_time);
   PhysicsCheckCollisions();
   ark.stability_score = PhysicsStability(GRID_WIDTH * 8, GRID_DEPTH * 8);
-  UpdateKnowledgeGraph(ark.stability_score * 1000, (ark.stability_score > 75.0) ? 100000 : 50000,
-                       (ark.time_left < MAX_TIME / 2) ? 1 : 0);
-  I64 block_count = 0;
+  ark.block_count = 0;
   for (I64 z = 0; z < GRID_DEPTH; z++) {
     for (I64 y = 0; y < GRID_HEIGHT; y++) {
       for (I64 x = 0; x < GRID_WIDTH; x++) {
-        if (ark.grid[x][y][z] == 1) block_count++;
+        if (x < 0 || x >= GRID_WIDTH || y < 0 || y >= GRID_HEIGHT || z < 0 || z >= GRID_DEPTH) continue;
+        if (ark.grid[x][y][z] == 1) ark.block_count++;
       }
     }
   }
-  if (block_count > 100 || ark.workers > 20) {
+  UpdateKnowledgeGraph(FNV1aHash(ark.stability_score), ark.block_count * 1000, 0);
+  if (ark.block_count > 100 || ark.workers > 20) {
     AGIAdjustEthics(-1);
     LOG(LOG_NORMAL, "Warning: Overbuilding detected.\n");
   }
@@ -143,11 +144,10 @@ U0 ArkCleanup() {
 U0 ArkBuilder() {
   ArkInit();
   F64 delta_time = 1.0 / 60.0;
-  ark.time_left = MAX_TIME;
   while (ark.time_left > 0 && ark.stability_score < 90.0) {
     ArkRender();
     ArkUpdate(delta_time);
-    ark.time_left -= 1.0;
+    ark.time_left -= delta_time;
     I64 key = KbdGetChar();
     if (key == CH_ESC) {
       ArkCleanup();
@@ -169,11 +169,18 @@ U0 ArkBuilder() {
         }
         break;
       case '2':
-        // Gather resources (hypothetical)
+        if (ark.workers >= 1) {
+          ark.workers--;
+          ark.stone += 10;
+          ark.wood += 10;
+        }
         break;
       case '3':
-        // Hire worker
-        if (ark.workers < 20) ark.workers++;
+        if (ark.stone >= 20 && ark.wood >= 20) {
+          ark.workers++;
+          ark.stone -= 20;
+          ark.wood -= 20;
+        }
         break;
       case 'i': ark.camera_pos.y += 8; break;
       case 'k': ark.camera_pos.y -= 8; break;

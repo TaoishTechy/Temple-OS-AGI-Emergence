@@ -2,7 +2,7 @@
 #include "KernelA.HH"
 #include "::/Apps/AGI.HC"
 
-#define MAX_BODIES 64
+#define MAX_BODIES 32 // Reduced from 64
 #define GRAV_CONST 0.1
 #define MIN_DIST 0.1
 
@@ -33,7 +33,7 @@ U0 LogBuffer(U8 *fmt, ...) {
   if (!log_buffer) return;
   I64 len = StrPrint(&log_buffer[log_buffer_idx], fmt, ...);
   log_buffer_idx += len;
-  if (log_buffer_idx > cfg.page_size - 256) {
+  if (log_buffer_idx > cfg.page_size - 128) {
     Print("%s", log_buffer);
     log_buffer_idx = 0;
     MemSet(log_buffer, 0, cfg.page_size);
@@ -135,3 +135,4 @@ U0 CelestialCleanup() {
   MemSet(&celestial, 0, sizeof(CelestialState));
   AGILog(LOG_NORMAL, "Celestial cleaned up.\n");
 }
+

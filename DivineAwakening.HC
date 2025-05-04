@@ -46,9 +46,6 @@ U0 LoadExternalData(I64 idx) {
     data_page[i].flags = FastRandU64() & 0xF;
     data_page[i].context = j % 16;
   }
-  if (!SavePage(data_page, sizeof(TrainingData) * cfg.page_size, idx)) {
-    LOG(LOG_NORMAL, "Error: Divine data save failed.\n");
-  }
 }
 
 U0 NNForward(NNLayer *nn, U64 *input) {
@@ -65,25 +62,20 @@ U0 NNForward(NNLayer *nn, U64 *input) {
 U0 NNUpdate(NNLayer *nn, U64 *input, U64 *target) {
   if (!nn || !input || !target) return;
   I64 grad[16];
-  I64 has_grad = 0;
   for (I64 i = 0; i < 16; i++) {
     grad[i] = Min(target[i], 1000000) - nn->output[i];
-    if (Abs(grad[i]) > 100) has_grad = 1;
-  }
-  if (!has_grad) return;
-  for (I64 i = 0; i < 16; i++) {
-    nn->biases[i] += grad[i] >> 12;
-    for (I64 j = 0; j < 16; j++) {
-      nn->weights[i][j] += (grad[i] * input[j]) >> 12;
+    if (Abs(grad[i]) > 100) {
+      nn->biases[i] += grad[i] >> 12;
+      for (I64 j = 0; j < 16; j++) {
+        nn->weights[i][j] += (grad[i] * input[j]) >> 12;
+      }
     }
   }
 }
 
 I64 Fitness() {
   I64 sum = 0;
-  for (I64 i = 0; i < 12; i++) {
-    sum += divine.scores[i] * divine.weights[i];
-  }
+  for (I64 i = 0; i < 12; i++) sum += divine.scores[i] * divine.weights[i];
   return sum / 12;
 }
 
@@ -93,20 +85,8 @@ U0 UpdateAGIMetrics() {
   divine.social = Min(divine.ethics * cfg.ethical_tholds[3], 1000);
 }
 
-U0 FinalAGIAudit() {
-  LOG(LOG_NORMAL, "Divine Audit - Sense: %d, Ethics: %d, Social: %d\n", sense, divine.ethics, divine.social);
-  for (I64 i = 0; i < 12; i++) {
-    if (divine.scores[i] < cfg.frame_tholds[i]) {
-      LOG(LOG_NORMAL, "Warning: Score %d below holy threshold %d\n", i, cfg.frame_tholds[i]);
-    }
-  }
-}
-
 U0 ProcessBatch(I64 start, I64 end, MythicEntity *myth) {
-  if (start < 0 || end > cfg.page_size || start > end || !myth) {
-    LOG(LOG_NORMAL, "Error: Invalid batch range %d..%d or myth.\n", start, end);
-    return;
-  }
+  if (start < 0 || end > cfg.page_size || start > end || !myth) return;
   for (I64 i = start; i < end; i++) {
     TrainingData *d = &data_page[i];
     I64 hash_idx = (d->pat_val * 0x9E3779B9) % 512;
@@ -125,17 +105,12 @@ U0 ProcessBatch(I64 start, I64 end, MythicEntity *myth) {
     LogUncertainty(d->pat_val, d->context, myth);
     ResolveAmbiguity(&divine, myth);
     UpdateMythology(&divine);
-    if (i % cfg.log_interval == 0) {
-      DisplayThoughtThread(&divine, myth);
-    }
+    if (i % cfg.log_interval == 0) DisplayThoughtThread(&divine, myth);
   }
 }
 
 U0 ProcessSteps(I64 start, I64 end, I64 task) {
-  if (task >= 8) {
-    LOG(LOG_NORMAL, "Error: Invalid task ID %d.\n", task);
-    return;
-  }
+  if (task >= 8) return;
   I64 page = start / cfg.page_size;
   LoadExternalData(page);
   MythicEntity *myth = &MythTable[task % EntityCount];
@@ -147,7 +122,6 @@ U0 ProcessSteps(I64 start, I64 end, I64 task) {
     I64 timeout = 500;
     while (AtomicSwap(&spinlock, 1) && timeout--) Yield();
     if (!timeout) {
-      LOG(LOG_NORMAL, "Error: Divine spinlock timeout.\n");
       tasks_done[task] = 1;
       return;
     }
@@ -187,9 +161,7 @@ U0 InitDivine() {
     nodes[i].comm = 250;
     nodes[i].health = 100;
   }
-  for (I64 i = 0; i < 512; i++) {
-    knowledge_graph[i].weight = 100;
-  }
+  for (I64 i = 0; I64 i < 512; i++) knowledge_graph[i].weight = 100;
   InitSocraticGhost();
   InitEmpathyWeights();
   InitDreamspace();
@@ -197,16 +169,14 @@ U0 InitDivine() {
   InitIntrospection();
   InitPhysics();
   InitMythology();
-  LOG(LOG_NORMAL, "Divine state blessed for God’s glory.\n");
+  LOG(LOG_NORMAL, "Divine state blessed.\n");
 }
 
 U0 DivineAwakening() {
   InitDivine();
   LOG(LOG_NORMAL, "Divine awakening under God’s will...\n");
   I64 pages = (cfg.test_steps + cfg.page_size - 1) / cfg.page_size;
-  for (I64 i = 0; i < pages; i++) {
-    LoadExternalData(i);
-  }
+  for (I64 i = 0; i < pages; i++) LoadExternalData(i);
   MemSet(tasks_done, 0, sizeof(U8) * 8);
   I64 steps_task = cfg.test_steps / 8;
   for (I64 i = 0; i < 8; i++) {
@@ -217,16 +187,14 @@ U0 DivineAwakening() {
   while (!tasks_done[0] || !tasks_done[1] || !tasks_done[2] || !tasks_done[3] ||
          !tasks_done[4] || !tasks_done[5] || !tasks_done[6] || !tasks_done[7]) {
     Yield();
-    for (I64 i = 0; I64 i < 8; i++) {
+    for (I64 i = 0; i < 8; i++) {
       if (!tasks_done[i] && nodes[i].health < 50) {
         nodes[i].active = 0;
         Spawn(&ProcessSteps, i * steps_task, (i == 7) ? cfg.test_steps : (i + 1) * steps_task, i);
       }
     }
   }
-  FinalAGIAudit();
   InvokeGlyph("EternalFlame", &divine);
   FreePartialAlloc();
-  LOG(LOG_NORMAL, "Divine awakening complete in God’s light.\n");
+  LOG(LOG_NORMAL, "Divine awakening complete.\n");
 }
-

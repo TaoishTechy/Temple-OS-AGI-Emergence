@@ -2,7 +2,7 @@
 #include "KernelA.HH"
 #include "::/Apps/AGI.HC"
 
-#define MAX_SPECIES 16
+#define MAX_SPECIES 8 // Reduced from 16
 #define MAX_RESOURCES 2
 #define RES_WATER 0
 #define RES_SOIL 1
@@ -30,7 +30,7 @@ U0 LogBuffer(U8 *fmt, ...) {
   if (!log_buffer) return;
   I64 len = StrPrint(&log_buffer[log_buffer_idx], fmt, ...);
   log_buffer_idx += len;
-  if (log_buffer_idx > cfg.page_size - 256) {
+  if (log_buffer_idx > cfg.page_size - 128) {
     Print("%s", log_buffer);
     log_buffer_idx = 0;
     MemSet(log_buffer, 0, cfg.page_size);

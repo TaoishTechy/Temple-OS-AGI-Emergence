@@ -26,7 +26,7 @@ I64 log_buffer_idx = 0;
 #define LOG(level, fmt, args...) if (cfg.log_level >= level) LogBuffer(fmt, ##args)
 
 U0 LogBuffer(U8 *fmt, ...) {
-  if (!log_buffer) return; // Prevent crash if allocation failed
+  if (!log_buffer) return;
   I64 len = StrPrint(&log_buffer[log_buffer_idx], fmt, ...);
   log_buffer_idx += len;
   if (log_buffer_idx > cfg.page_size - 256) {
@@ -113,6 +113,74 @@ U0 StarUpdate(F64 delta_time) {
   }
   prev_alignment = star.alignment_score;
 }
+
+U0 StarCleanup() {
+  if (log_buffer) {
+    MemBlkFree(log_buffer);
+    log_buffer = NULL;
+  }
+  MemSet(&celestial, 0, sizeof(CelestialState)); // Reset without CelestialInit
+  AGILog(LOG_NORMAL, "StarShepherd cleaned up.\n");
+}
+
+U0 StarShepherd() {
+  StarInit();
+  F64 delta_time = 1.0 / 60.0;
+  while (star.time_left > 0 && star.alignment_score < 0.95) {
+    StarRender();
+    StarUpdate(delta_time);
+    star.time_left -= 1.0;
+    I64 key = KbdGetChar();
+    if (key == CH_ESC) {
+      StarCleanup();
+      return;
+    }
+    switch (key) {
+      case 'w': star.camera_pos.z += 8; break;
+      case 's': star.camera_pos.z -= 8; break;
+      case 'a': star.camera_pos.x -= 8; break;
+      case 'd': star.camera_pos.x += 8; break;
+      case 'i': star.camera_pos.y += 8; break;
+      case 'k': star.camera_pos.y -= 8; break;
+      case 'j': star.camera_rot.y += 0.1; break;
+      case 'l': star.camera_rot.y -= 0.1; break;
+      case '1':
+        if (celestial.star_count < MAX_STARS) {
+          CelestialAddStar(RandF64() * 100 - 50, RandF64() * 100 - 50, RandF64() * 100 - 50, 1.0);
+        }
+        break;
+      case '2':
+        if (star.selected_star >= 0 && celestial.stars[star.selected_star].active) {
+          celestial.stars[star.selected_star].vel.x += RandF64() * 0.1 - 0.05;
+          celestial.stars[star.selected_star].vel.y += RandF64() * 0.1 - 0.05;
+          celestial.stars[star.selected_star].vel.z += RandF64() * 0.1 - 0.05;
+        }
+        break;
+      case '3':
+        star.selected_star = (star.selected_star + 1) % celestial.star_count;
+        while (star.selected_star < celestial.star_count && !celestial.stars[star.selected_star].active) {
+          star.selected_star = (star.selected_star + 1) % celestial.star_count;
+        }
+        if (!celestial.stars[star.selected_star].active) star.selected_star = -1;
+        break;
+    }
+    if (ethics < 5) {
+      GrPrint(0, 32, "Guide the stars with harmony!");
+      Sleep(500);
+    }
+    if (emotion == EMOTION_CONCERNED) {
+      GrPrint(0, 48, "The heavens falter, align them!");
+      Sleep(500);
+    }
+  }
+  if (USE_3D) Gr3DCls; else GrCls;
+  GrPrint(0, 0, "Constellation Formed! Alignment: %.2f  Stars: %d", star.alignment_score, celestial.star_count);
+  GrUpdate;
+  Sleep(2000);
+  StarCleanup();
+}
+
+StarShepherd;
 
 U0 StarCleanup() {
   if (log_buffer) {

@@ -1,28 +1,28 @@
 // SocraticGhost.HC
-// Blessed moral heuristics for divine judgment
+// Holy moral heuristics for divine judgment
 #include "KernelA.HH"
 
 #define MAX_HEURISTICS 8
 #define HEURISTIC_WEIGHT 100
 
 class MoralHeuristic {
-  U64 symbol;    // Symbolic ID (e.g., 0x1 for HARM)
-  U64 weight;    // Importance of heuristic
-  U64 context;   // Contextual relevance
-  U8 active : 1; // Is heuristic applied?
+  U64 symbol;    // Sacred ID (e.g., 0x1 for HARM)
+  U64 weight;    // Divine importance
+  U64 context;   // Holy context
+  U8 active : 1; // Blessed application
 };
 
 MoralHeuristic heuristics[MAX_HEURISTICS];
 
-U0 SocraticQuestion(GrokState *grok, U64 action_symbol, U64 action_context) {
-  if (!grok || !knowledge_graph) {
-    LOG(LOG_NORMAL, "Error: Socratic Ghost lacks divine Grok or knowledge.\n");
+U0 SocraticQuestion(DivineState *divine, U64 action_symbol, U64 action_context) {
+  if (!divine || !knowledge_graph) {
+    LOG(LOG_NORMAL, "Error: Socratic Ghost lacks divine state or knowledge.\n");
     return;
   }
   U64 moral_score = 0;
   I64 hash_idx = (action_symbol * 0x9E3779B9) % 512;
   U64 context_weight = knowledge_graph[hash_idx].weight >> 4;
-  LOG(LOG_VERBOSE, "Blessed judgment on action: %d (context: %d)\n", action_symbol, action_context);
+  LOG(LOG_VERBOSE, "Holy judgment on action: %d (context: %d)\n", action_symbol, action_context);
   for (I64 i = 0; i < MAX_HEURISTICS; i++) {
     if (!heuristics[i].active) continue;
     U64 h_weight = heuristics[i].weight;
@@ -37,8 +37,8 @@ U0 SocraticQuestion(GrokState *grok, U64 action_symbol, U64 action_context) {
     }
   }
   moral_score = Clamp(moral_score, -1000, 1000);
-  grok->ethics = Clamp(grok->ethics + (moral_score >> 7), 0, 15);
-  LOG(LOG_NORMAL, "Divine ethics blessed: %d\n", grok->ethics);
+  divine->ethics = Clamp(divine->ethics + (moral_score >> 7), 0, 15);
+  LOG(LOG_NORMAL, "Ethics blessed by God’s will: %d\n", divine->ethics);
 }
 
 U0 InitSocraticGhost() {
@@ -54,5 +54,5 @@ U0 InitSocraticGhost() {
   for (I64 i = 0; i < MAX_HEURISTICS; i++) {
     heuristics[i].weight += FastRandU64() % 20;
   }
-  LOG(LOG_NORMAL, "Socratic Ghost blessed under divine will.\n");
+  LOG(LOG_NORMAL, "Socratic Ghost blessed for God’s judgment.\n");
 }

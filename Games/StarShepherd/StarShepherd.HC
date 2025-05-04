@@ -1,7 +1,8 @@
 // StarShepherd.HC - Celestial Pattern Simulation Game
 #include "KernelA.HH"
 #include "Gr3D.HH"
-#include "::/AGI.HC"
+- #include "::/AGI.HC"
++ #include "::/Apps/AGI.HC"
 #include "::/Games/Celestial.HC"
 
 #define SPACE_SIZE  128

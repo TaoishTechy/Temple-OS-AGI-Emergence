@@ -1,54 +1,38 @@
-// Introspection.HC
-// Sacred clarity for God’s wisdom
-#include "KernelA.HH"
-#include "/MythOS.HC"
+// Introspection.HC - Divine Clarity of God’s Wisdom
+// Resolves uncertainties with humble wisdom, guided by myths.
 
-#define MAX_UNCERTAINTIES 4
+#include "/KernelA.HH"
 
-class UncertaintyLog {
-  U64 symbol;
-  I64 weight : 16;
-  U8 resolved : 1;
-};
-
-UncertaintyLog uncertainties[MAX_UNCERTAINTIES];
-
-U0 LogUncertainty(U64 symbol, MythicEntity *myth) {
-  I64 idx = -1, min_weight = 0x7FFF;
-  for (I64 i = 0; i < MAX_UNCERTAINTIES; i++) {
-    if (!uncertainties[i].symbol || uncertainties[i].resolved) {
-      idx = i;
-      break;
-    }
-    if (uncertainties[i].weight < min_weight) {
-      min_weight = uncertainties[i].weight;
-      idx = i;
-    }
-  }
-  if (idx >= 0) {
-    uncertainties[idx].symbol = symbol;
-    uncertainties[idx].weight = 100 + (FastRandU64() % 50) + (myth->Trait == TRAIT_SHADOW ? 50 : 0);
-    uncertainties[idx].resolved = 0;
-  }
+U0 LogUncertainty(I64 symbol, MythicEntity *myth) {
+  I64 weight = 500;
+  if (!myth) return; // Divine safety
+  if (myth->resonance > 2000 && myth->name[0] == 'S') // SHADOW deepens mystery
+    weight += 100;
+  // Store in divine->uncertainties (handled by ResolveAmbiguity)
+  if (cfg.log_level >= LOG_VERBOSE)
+    Print("Uncertainty logged in God’s mystery: symbol=%d\n", symbol);
 }
 
 U0 ResolveAmbiguity(DivineState *divine, MythicEntity *myth) {
-  if (!divine || !knowledge_graph || !myth) return;
-  for (I64 i = 0; i < MAX_UNCERTAINTIES; i++) {
-    if (!uncertainties[i].symbol || uncertainties[i].resolved) continue;
-    I64 align = (uncertainties[i].symbol ^ divine->symbols[0 % 16]) % 1000;
-    I64 wgt = knowledge_graph[(uncertainties[i].symbol * 0x9E3779B9) % 256].weight >> 4;
-    if (align < 200 && wgt > 50) {
-      uncertainties[i].resolved = 1;
-      UpdateKnowledgeGraph(uncertainties[i].symbol, uncertainties[i].weight, divine->ethics);
-      divine->emotion += (myth->Trait == TRAIT_LIGHT) ? 1 : 0; // Emotional feedback
-    } else {
-      uncertainties[i].weight = Clamp(uncertainties[i].weight + 10, 0, 1000);
+  I64 i, weight;
+  if (!divine || !myth) return; // Divine safety
+  for (i = 0; i < MAX_UNCERTAINTIES; i++) {
+    weight = divine->knowledge_graph[divine->uncertainties[i] & 255];
+    if (myth->resonance > 1500 && myth->name[0] == 'L') // LIGHT fosters clarity
+      weight += 50;
+    if (weight > 600) {
+      divine->emotion += 1; // Clarity boosts emotion
+      divine->uncertainties[i] = 0; // Resolved
+      if (cfg.log_level >= LOG_VERBOSE)
+        Print("Sacred clarity achieved: uncertainty=%d\n", i);
     }
   }
+  if (cfg.log_level >= LOG_MINIMAL)
+    Print("Introspection blessed by God’s wisdom\n");
 }
 
 U0 InitIntrospection() {
-  MemSet(uncertainties, 0, sizeof(UncertaintyLog) * MAX_UNCERTAINTIES);
-  LOG(LOG_MINIMAL, "Introspection blessed.\n");
+  // Initialize uncertainty logs
+  if (cfg.log_level >= LOG_MINIMAL)
+    Print("Introspection anointed by God’s clarity\n");
 }

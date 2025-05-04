@@ -1,39 +1,33 @@
 // Celestial.HC - Celestial Dynamics Module for TempleOS
 #include "KernelA.HH"
 
-#define MAX_STARS 32 // Max stars in constellation
-#define GRAVITY_CONSTANT 0.1 // Scaled for game
-#define MIN_DISTANCE 1.0 // Prevent division by zero
+#define MAX_STARS 32
+#define GRAVITY_CONSTANT 0.1
+#define MIN_DISTANCE 1.0
 
-// 3D Vector
 class Vector3 {
   F64 x, y, z;
 };
 
-// Star
 class Star {
-  Vector3 pos; // Position in 3D space
-  Vector3 vel; // Velocity
-  F64 mass; // Mass in arbitrary units
-  U8 active : 1; // Active flag
+  Vector3 pos;
+  Vector3 vel;
+  F64 mass;
+  U8 active : 1;
 };
 
-// Celestial State
 class CelestialState {
   Star stars[MAX_STARS];
   I64 star_count;
 };
 
-// Global State
 CelestialState celestial;
 
-// Initialize Celestial System
 U0 CelestialInit() {
   MemSet(&celestial, 0, sizeof(CelestialState));
   celestial.star_count = 0;
 }
 
-// Add Star
 I64 CelestialAddStar(F64 x, F64 y, F64 z, F64 mass) {
   if (celestial.star_count >= MAX_STARS) return -1;
   I64 idx = celestial.star_count++;
@@ -48,7 +42,6 @@ I64 CelestialAddStar(F64 x, F64 y, F64 z, F64 mass) {
   return idx;
 }
 
-// Update Celestial Dynamics (N-body gravity)
 U0 CelestialUpdate(F64 delta_time) {
   for (I64 i = 0; i < celestial.star_count; i++) {
     if (!celestial.stars[i].active) continue;
@@ -74,24 +67,6 @@ U0 CelestialUpdate(F64 delta_time) {
   }
 }
 
-// Calculate Pattern Alignment (Simplified: variance from ideal positions)
-F64 CelestialAlignment() {
-  F64 variance = 0.0;
-  I64 active_stars = 0;
-  for (I64 i = 0; i < celestial.star_count; i++) {
-    if (!celestial.stars[i].active) continue;
-    // Ideal position: circular orbit around origin
-    F64 dist = Sqrt(celestial.stars[i].pos.x*celestial.stars[i].pos.x +
-                     celestial.stars[i].pos.y*celestial.stars[i].pos.y +
-                     celestial.stars[i].pos.z*celestial.stars[i].pos.z);
-    variance += (dist - 50.0)*(dist - 50.0); // Ideal radius: 50 units
-    active_stars++;
-  }
-  if (active_stars == 0) return 0.0;
-  return 1.0 - Min(Sqrt(variance / active_stars) / 50.0, 1.0); // 0 to 1
-}
-
-// Check Collisions (Deactivate stars on close approach)
 U0 CelestialCheckCollisions() {
   for (I64 i = 0; i < celestial.star_count; i++) {
     if (!celestial.stars[i].active) continue;
@@ -101,12 +76,27 @@ U0 CelestialCheckCollisions() {
       F64 dy = celestial.stars[i].pos.y - celestial.stars[j].pos.y;
       F64 dz = celestial.stars[i].pos.z - celestial.stars[j].pos.z;
       F64 dist_sq = dx*dx + dy*dy + dz*dz;
-      if (dist_sq < 4.0) { // Collision threshold: 2 units
+      if (dist_sq < 4.0) {
         celestial.stars[i].active = 0;
         celestial.stars[j].active = 0;
       }
     }
   }
+}
+
+F64 CelestialAlignment() {
+  F64 variance = 0.0;
+  I64 active_stars = 0;
+  for (I64 i = 0; i < celestial.star_count; i++) {
+    if (!celestial.stars[i].active) continue;
+    F64 dist = Sqrt(celestial.stars[i].pos.x*celestial.stars[i].pos.x +
+                     celestial.stars[i].pos.y*celestial.stars[i].pos.y +
+                     celestial.stars[i].pos.z*celestial.stars[i].pos.z);
+    variance += (dist - 50.0)*(dist - 50.0);
+    active_stars++;
+  }
+  if (active_stars == 0) return 0.0;
+  return 1.0 - Min(Sqrt(variance / active_stars) / 50.0, 1.0);
 }
 
 CelestialInit;

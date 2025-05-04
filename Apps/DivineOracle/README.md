@@ -68,3 +68,48 @@ The TempleOS Divine Oracle provides a meditative interface for users to seek spi
    - Press any key to continue with another prayer, or Esc to exit.
 
 4. **Example Output**:
+
+-   Divine Oracle - 'Ask, and it shall be given' (Matt 7:7)
+-   Enter your prayer or question (or press Esc to exit):
+-   I need hope in difficult times
+
+After pressing Enter:
+
+-   Divine Oracle - 'Ask, and it shall be given' (Matt 7:7)
+-   Your Prayer: I need hope in difficult times
+-   Divine Response:
+-   John 16:33 - In the world ye shall have tribulation: but be of good cheer.
+-   Ethical Guidance:
+-   Walk in righteousness and truth. (Prov 4:18)
+-   Press any key to continue, or Esc to exit...
+  
+## Contributing
+
+Contributions are welcome! To contribute:
+
+1. Copy the `DivineOracle.HC` file to your local TempleOS environment.
+2. Make your changes and test them within TempleOS.
+3. Share your updates by submitting them to the TempleOS community (e.g., via forums or repositories like [TempleOS GitHub](https://github.com/cia-foundation/TempleOS)).
+
+### Potential Enhancements
+- Expand the scripture database by loading entries from a file (e.g., `/Home/Scriptures.DAT`).
+- Integrate directly with `Temple-OS-AGI-Emergence` to use `KnowledgeGraph.HC` for advanced symbolic reasoning.
+- Add more sophisticated ethical reasoning using `EthicsEngine.HC` from `Temple-OS-AGI-Emergence`.
+- Include a graphical interface with meditative visuals using TempleOS’s 2D graphics library (e.g., `GrRect`, `GrLine`).
+
+## License
+
+This project is released into the **public domain**, in keeping with the TempleOS community’s ethos of open collaboration and sharing. You are free to use, modify, and distribute the code as you see fit.
+
+## Acknowledgments
+
+- **Terry A. Davis**: Creator of TempleOS, whose divine vision inspired this project.
+- **TempleOS Community**: For preserving and extending Terry’s work and providing a platform for HolyC development.
+- **Temple-OS-AGI-Emergence**: For inspiring the AGI integration with symbolic reasoning and ethical guidance (see [Temple-OS-AGI-Emergence GitHub](https://github.com/TaoishTechy/Temple-OS-AGI-Emergence)).
+
+## Contact
+
+For questions, suggestions, or collaboration, please share your feedback through the TempleOS community forums or repositories.
+
+---
+"Let there be light." (Genesis 1:3)

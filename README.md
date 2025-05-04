@@ -18,13 +18,6 @@ The `Temple-OS-AGI-Emergence` project fosters AGI development in TempleOS's ligh
 ## Repository Structure
 
 - /Temple-OS-AGI-Emergence/
-- ├── AGI.HC                # Core AGI framework (assumed in root, may be in /Apps/)
-- ├── Apps/                 # Utilities for AGI and system integration
-- │   ├── ControlPanel/     # System control utility (e.g., AGI settings)
-- │   ├── DivineOracle/     # AGI-driven oracle for predictions or guidance
-- │   ├── FileExplorer/     # File management utility (FileExplorer.HC)
-- │   ├── HolyCanvas/       # Graphics visualization tool for AGI
-- │   ├── TempleTeach/      # Educational tool for HolyC or AGI concepts
 - ├── Games/                # Game scripts and dependencies
 - │   ├── PsalmPuzzle.HC    # Tile-matching game
 - │   ├── ShepherdsQuest.HC # Text-based adventure
@@ -35,12 +28,25 @@ The `Temple-OS-AGI-Emergence` project fosters AGI development in TempleOS's ligh
 - │   ├── Ecology.HC        # Ecological dynamics module
 - │   ├── StarShepherd.HC   # Celestial pattern simulation
 - │   ├── Celestial.HC      # Celestial dynamics module
-- │   ├── Docs/             # Game-specific documentation
-- │   │   └── README.md     # Games README
-- │   └── Tests/            # Optional test scripts
-- ├── Docs/                 # Repository-wide documentation
-- │   └── README.md         # This README
-- └── Tests/                # Optional framework tests
+- │   ├── README.md     # Games README
+
+- ├── Apps/                 # Utilities and core AGI framework
+- │   ├── AGI.HC            # Core AGI framework
+- │   ├── ControlPanel/     # System control utility
+- │   │   └── ControlPanel.HC # Assumed primary script
+- │   ├── DivineOracle/     # AGI-driven oracle
+- │   │   └── DivineOracle.HC # Assumed primary script
+- │   ├── FileExplorer/     # File management utility
+- │   │   └── FileExplorer.HC # Confirmed script
+- │   ├── HolyCanvas/       # Graphics visualization tool
+- │   │   └── HolyCanvas.HC # Assumed primary script
+- │   ├── TempleTeach/      # Educational tool
+- │   │   └── TempleTeach.HC # Assumed primary script
+- │   └── README.md     # This README (to be created)
+│       
+├── Docs/                 # Repository-wide documentation
+    └── README.md         # Main README
+
 
 ## Games for AGI Training
 

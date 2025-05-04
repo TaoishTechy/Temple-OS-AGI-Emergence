@@ -1,7 +1,7 @@
-// Apps/HolyCanvas.HC - Graphics Visualization Tool
+// Apps/HolyCanvas/HolyCanvas.HC - Graphics Visualization Tool
 #include "KernelA.HH"
 #include "Gr3D.HH"
-#include "::/AGI.HC"
+#include "::/Apps/AGI.HC"
 
 #define CANVAS_SIZE 640
 #define MAX_NODES 128
@@ -36,16 +36,17 @@ U0 CanvasInit() {
     Print("Fatal: Log buffer allocation failed.\n");
     Halt;
   }
+  MemSet(log_buffer, 0, cfg.page_size);
   LOG(LOG_NORMAL, "HolyCanvas initialized.\n");
 }
 
 U0 CanvasRender() {
   GrCls;
-  // Simplified: Draw knowledge graph nodes
   for (I64 i = 0; i < MAX_NODES; i++) {
     if (!knowledge_graph[i].active) continue;
     I64 x = (i % 32) * 20;
     I64 y = (i / 32) * 20;
+    if (x < 0 || x >= 640 || y < 0 || y >= 480) continue; // Clipping
     GrPrint(x, y, "*", i == canvas.selected_node ? YELLOW : WHITE);
   }
   GrPrint(0, 480 - 16, "Ethics: %d  Emotion: %d", ethics, emotion);
@@ -53,8 +54,12 @@ U0 CanvasRender() {
 }
 
 U0 CanvasUpdate() {
-  if (canvas.selected_node >= 0) {
+  if (canvas.selected_node >= 0 && canvas.selected_node < MAX_NODES &&
+      knowledge_graph[canvas.selected_node].active) {
     UpdateKnowledgeGraph(FNV1aHash(canvas.selected_node), knowledge_graph[canvas.selected_node].weight * 1000, 0);
+    AGIUpdateEmotion(EMOTION_HAPPY);
+  } else {
+    AGIUpdateEmotion(EMOTION_CURIOUS);
   }
 }
 

@@ -22,7 +22,7 @@ U0 LogBuffer(U8 *fmt, ...) {
   if (!log_buffer) return;
   I64 len = StrPrint(&log_buffer[log_buffer_idx], fmt, ...);
   log_buffer_idx += len;
-  if (log_buffer_idx > cfg.page_size - 256) {
+  if (log_buffer_idx > cfg.page_size - 128) {
     Print("%s", log_buffer);
     log_buffer_idx = 0;
     MemSet(log_buffer, 0, cfg.page_size);
@@ -30,23 +30,36 @@ U0 LogBuffer(U8 *fmt, ...) {
 }
 
 U0 PuzzleShuffle() {
-  // Simple shuffle: perform 100 random valid swaps
-  for (I64 i = 0; i < 100; i++) {
-    I64 dir = RandU8() % 4;
-    I64 dx = 0, dy = 0;
-    switch (dir) {
-      case 0: dy = -1; break; // Up
-      case 1: dy = 1; break;  // Down
-      case 2: dx = -1; break; // Left
-      case 3: dx = 1; break;  // Right
+  // Initialize solvable grid
+  U8 tiles[GRID_SIZE * GRID_SIZE];
+  for (I64 i = 0; i < GRID_SIZE * GRID_SIZE - 1; i++) tiles[i] = i + 1;
+  tiles[GRID_SIZE * GRID_SIZE - 1] = 0;
+  // Fisher-Yates shuffle, ensure solvability
+  I64 inversions = 0;
+  for (I64 i = GRID_SIZE * GRID_SIZE - 2; i >= 0; i--) {
+    I64 j = RandU8() % (i + 1);
+    if (tiles[i] && tiles[j]) inversions += (tiles[i] > tiles[j]);
+    U8 temp = tiles[i];
+    tiles[i] = tiles[j];
+    tiles[j] = temp;
+  }
+  // For 4x4, inversions must be even for solvability
+  if (inversions & 1) {
+    // Swap two non-zero tiles to make solvable
+    if (tiles[0] && tiles[1]) {
+      U8 temp = tiles[0];
+      tiles[0] = tiles[1];
+      tiles[1] = temp;
     }
-    I64 nx = puzzle.cursor_x + dx;
-    I64 ny = puzzle.cursor_y + dy;
-    if (nx >= 0 && nx < GRID_SIZE && ny >= 0 && ny < GRID_SIZE) {
-      puzzle.grid[puzzle.cursor_y][puzzle.cursor_x] = puzzle.grid[ny][nx];
-      puzzle.grid[ny][nx] = 0;
-      puzzle.cursor_x = nx;
-      puzzle.cursor_y = ny;
+  }
+  // Apply to grid
+  for (I64 y = 0; y < GRID_SIZE; y++) {
+    for (I64 x = 0; x < GRID_SIZE; x++) {
+      puzzle.grid[y][x] = tiles[y * GRID_SIZE + x];
+      if (puzzle.grid[y][x] == 0) {
+        puzzle.cursor_x = x;
+        puzzle.cursor_y = y;
+      }
     }
   }
   LOG(LOG_NORMAL, "Puzzle shuffled.\n");
@@ -54,15 +67,6 @@ U0 PuzzleShuffle() {
 
 U0 PuzzleInit() {
   MemSet(&puzzle, 0, sizeof(PuzzleState));
-  // Initialize grid: numbers 1-15, 0 for empty
-  for (I64 y = 0; y < GRID_SIZE; y++) {
-    for (I64 x = 0; x < GRID_SIZE; x++) {
-      puzzle.grid[y][x] = y * GRID_SIZE + x + 1;
-    }
-  }
-  puzzle.grid[GRID_SIZE-1][GRID_SIZE-1] = 0;
-  puzzle.cursor_x = GRID_SIZE - 1;
-  puzzle.cursor_y = GRID_SIZE - 1;
   puzzle.move_count = 0;
   puzzle.solved = 0;
   log_buffer = MemBlkAlloc(cfg.page_size, MEM_ALIGN_4K);
@@ -143,7 +147,7 @@ U0 PsalmPuzzle() {
       case 'a': dx = -1; break;
       case 'd': dx = 1; break;
       case ' ': // Swap with any adjacent empty tile
-        I64 dirs[4][2] = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}}; // Up, Down, Left, Right
+        I64 dirs[4][2] = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
         for (I64 i = 0; i < 4; i++) {
           I64 nx = puzzle.cursor_x + dirs[i][0];
           I64 ny = puzzle.cursor_y + dirs[i][1];

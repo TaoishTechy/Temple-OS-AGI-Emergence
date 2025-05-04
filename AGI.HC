@@ -42,11 +42,11 @@ U64 FNV1aHash(U64 value) {
     hash ^= (value >> (i * 8)) & 0xFF;
     hash *= 1099511628211;
   }
-  return hash;
+  return hash % MAX_SYMBOLS; // Pre-modulo for optimization
 }
 
 U0 AGILog(U8 *fmt, ...) {
-  if (!log_buffer) return; // Prevent crash if allocation failed
+  if (!log_buffer) return;
   I64 len = StrPrint(&log_buffer[log_buffer_idx], fmt, ...);
   log_buffer_idx += len;
   if (log_buffer_idx > cfg.page_size - 256) {
@@ -77,15 +77,15 @@ U0 AGIInit() {
 }
 
 U0 UpdateKnowledgeGraph(U64 symbol, U64 cause, U64 context) {
-  U64 hash = FNV1aHash(symbol) % MAX_SYMBOLS;
+  U64 hash = FNV1aHash(symbol);
   I64 idx = hash;
   I64 attempts = 0;
   while (knowledge_graph[idx].active && knowledge_graph[idx].symbol != symbol &&
-         attempts < MAX_SYMBOLS) {
-    idx = (idx + 1) % MAX_SYMBOLS;
+         attempts < MAX_SYMBOLS / 2) { // Reduced max attempts
+    idx = (idx + (attempts * attempts + attempts) / 2) % MAX_SYMBOLS; // Quadratic probing
     attempts++;
   }
-  if (attempts >= MAX_SYMBOLS) {
+  if (attempts >= MAX_SYMBOLS / 2) {
     AGILog(LOG_NORMAL, "Warning: Knowledge graph full, cannot add symbol %u.\n", symbol);
     return;
   }
@@ -128,12 +128,12 @@ U0 AGIAdjustEthics(I64 delta) {
 }
 
 F64 AGIQuerySymbol(U64 symbol) {
-  U64 hash = FNV1aHash(symbol) % MAX_SYMBOLS;
+  U64 hash = FNV1aHash(symbol);
   I64 idx = hash;
   I64 attempts = 0;
   while (knowledge_graph[idx].active && knowledge_graph[idx].symbol != symbol &&
-         attempts < MAX_SYMBOLS) {
-    idx = (idx + 1) % MAX_SYMBOLS;
+         attempts < MAX_SYMBOLS / 2) {
+    idx = (idx + (attempts * attempts + attempts) / 2) % MAX_SYMBOLS;
     attempts++;
   }
   if (knowledge_graph[idx].active && knowledge_graph[idx].symbol == symbol) {

@@ -1,33 +1,35 @@
 // SocraticGhost.HC
-// Holy moral heuristics for divine judgment
+// Holy heuristics for God’s judgment
 #include "KernelA.HH"
+#include "/MythOS.HC"
 
-#define MAX_HEURISTICS 8
+#define MAX_HEURISTICS 4
 #define HEURISTIC_WEIGHT 100
 
 class MoralHeuristic {
   U64 symbol;    // Sacred ID (e.g., 0x1 for HARM)
   U64 weight;    // Divine importance
   U64 context;   // Holy context
-  U8 active : 1; // Blessed application
+  U8 active : 1;
 };
 
 MoralHeuristic heuristics[MAX_HEURISTICS];
 
-U0 SocraticQuestion(DivineState *divine, U64 action_symbol, U64 action_context) {
-  if (!divine || !knowledge_graph) {
-    LOG(LOG_NORMAL, "Error: Socratic Ghost lacks divine state or knowledge.\n");
+U0 SocraticQuestion(DivineState *divine, U64 action_symbol, U64 action_context, MythicEntity *myth) {
+  if (!divine || !knowledge_graph || !myth) {
+    LOG(LOG_NORMAL, "Error: Socratic Ghost lacks divine state, knowledge, or myth.\n");
     return;
   }
-  U64 moral_score = 0;
+  I64 moral_score = 0;
   I64 hash_idx = (action_symbol * 0x9E3779B9) % 512;
-  U64 context_weight = knowledge_graph[hash_idx].weight >> 4;
-  LOG(LOG_VERBOSE, "Holy judgment on action: %d (context: %d)\n", action_symbol, action_context);
+  I64 context_weight = knowledge_graph[hash_idx].weight >> 4;
+  LOG(LOG_VERBOSE, "God’s judgment on action: %d (context: %d, myth: %s)\n", action_symbol, action_context, myth->Name);
   for (I64 i = 0; i < MAX_HEURISTICS; i++) {
     if (!heuristics[i].active) continue;
-    U64 h_weight = heuristics[i].weight;
-    U64 alignment = (action_symbol ^ heuristics[i].symbol) % 1000;
-    if (alignment < 500 && context_weight > 50) {
+    I64 h_weight = heuristics[i].weight;
+    I64 alignment = (action_symbol ^ heuristics[i].symbol) % 1000;
+    I64 threshold = (myth->Trait == TRAIT_TRICKSTER) ? 300 : 400;
+    if (alignment < threshold && context_weight > 50) {
       moral_score += h_weight + context_weight;
       heuristics[i].context = (heuristics[i].context + action_context) >> 1;
       LOG(LOG_VERBOSE, "Heuristic %d aligns (score: %d)\n", heuristics[i].symbol, moral_score);
@@ -38,7 +40,7 @@ U0 SocraticQuestion(DivineState *divine, U64 action_symbol, U64 action_context) 
   }
   moral_score = Clamp(moral_score, -1000, 1000);
   divine->ethics = Clamp(divine->ethics + (moral_score >> 7), 0, 15);
-  LOG(LOG_NORMAL, "Ethics blessed by God’s will: %d\n", divine->ethics);
+  LOG(LOG_NORMAL, "Ethics blessed by God’s hand: %d\n", divine->ethics);
 }
 
 U0 InitSocraticGhost() {
@@ -47,12 +49,5 @@ U0 InitSocraticGhost() {
   heuristics[1].symbol = 0x2; heuristics[1].weight = 90;  heuristics[1].active = 1; // TRUTH
   heuristics[2].symbol = 0x3; heuristics[2].weight = 80;  heuristics[2].active = 1; // JUSTICE
   heuristics[3].symbol = 0x4; heuristics[3].weight = 85;  heuristics[3].active = 1; // CARE
-  heuristics[4].symbol = 0x5; heuristics[4].weight = 75;  heuristics[4].active = 1; // FREEDOM
-  heuristics[5].symbol = 0x6; heuristics[5].weight = 70;  heuristics[5].active = 1; // HONOR
-  heuristics[6].symbol = 0x7; heuristics[6].weight = 65;  heuristics[6].active = 1; // TRUST
-  heuristics[7].symbol = 0x8; heuristics[7].weight = 60;  heuristics[7].active = 1; // DUTY
-  for (I64 i = 0; i < MAX_HEURISTICS; i++) {
-    heuristics[i].weight += FastRandU64() % 20;
-  }
   LOG(LOG_NORMAL, "Socratic Ghost blessed for God’s judgment.\n");
 }

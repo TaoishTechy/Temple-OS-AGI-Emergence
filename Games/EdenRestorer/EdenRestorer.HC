@@ -1,8 +1,7 @@
-// EdenRestorer.HC - Ecosystem Restoration Game
+// Games/EdenRestorer.HC - Ecosystem Restoration Game
 #include "KernelA.HH"
 #include "Gr3D.HH"
-- #include "::/AGI.HC"
-+ #include "::/Apps/AGI.HC"
+#include "::/Apps/AGI.HC"
 #include "::/Games/Ecology.HC"
 
 #define GRID_SIZE   16
@@ -23,9 +22,6 @@ EdenState eden;
 U8 *log_buffer = NULL;
 I64 log_buffer_idx = 0;
 
-#define LOG_MINIMAL 0
-#define LOG_NORMAL  1
-#define LOG_VERBOSE 2
 #define LOG(level, fmt, args...) if (cfg.log_level >= level) LogBuffer(fmt, ##args)
 
 U0 LogBuffer(U8 *fmt, ...) {
@@ -51,12 +47,15 @@ U0 EdenInit() {
   eden.camera_rot.z = 0;
   eden.selected_x = GRID_SIZE / 2;
   eden.selected_z = GRID_SIZE / 2;
+  eden.eco_health = 0.0;
   EcoInit();
   log_buffer = MemBlkAlloc(cfg.page_size, MEM_ALIGN_4K);
   if (!log_buffer) {
     Print("Fatal: Log buffer allocation failed.\n");
     Halt;
   }
+  MemSet(log_buffer, 0, cfg.page_size);
+  LOG(LOG_NORMAL, "EdenRestorer initialized.\n");
 }
 
 U0 EdenRender() {
@@ -94,15 +93,14 @@ U0 EdenRender() {
   }
   GrPrint(0, GRID_SIZE * 8, "Time: %.1f  Workers: %d  Health: %.2f", eden.time_left / 60.0, eden.workers, eden.eco_health);
   GrPrint(0, GRID_SIZE * 8 + 16, "Water: %.1f  Soil: %.1f  Pollution: %.1f", eco.resources[RES_WATER], eco.resources[RES_SOIL], eco.pollution);
-  GrPrint(0, GRID_SIZE * 8 + 32, "Ethics: %d  Emotion: %d", ethics, emotion);
+  GrPrint(0, 480 - 16, "Ethics: %d  Emotion: %d", ethics, emotion);
   GrUpdate;
 }
 
 U0 EdenUpdate(F64 delta_time) {
   EcoUpdate(delta_time);
   eden.eco_health = EcoHealth();
-  UpdateKnowledgeGraph(eden.eco_health * 100000, (eden.eco_health > 0.5) ? 100000 : 50000,
-                       (eden.time_left < MAX_TIME / 2) ? 1 : 0);
+  UpdateKnowledgeGraph(FNV1aHash(eden.eco_health), eden.eco_health > 0.5 ? 100000 : 50000, 0);
   I64 active_species = 0;
   for (I64 i = 0; i < MAX_SPECIES; i++) {
     if (eco.species[i].active) active_species++;
@@ -128,7 +126,7 @@ U0 EdenCleanup() {
     MemBlkFree(log_buffer);
     log_buffer = NULL;
   }
-  MemSet(&eden, 0, sizeof(EdenState)); // Reset state without EcoInit
+  MemSet(&eden, 0, sizeof(EdenState));
   AGILog(LOG_NORMAL, "EdenRestorer cleaned up.\n");
 }
 
@@ -138,7 +136,7 @@ U0 EdenRestorer() {
   while (eden.time_left > 0 && eden.eco_health < 0.9) {
     EdenRender();
     EdenUpdate(delta_time);
-    eden.time_left -= 1.0;
+    eden.time_left -= delta_time;
     I64 key = KbdGetChar();
     if (key == CH_ESC) {
       EdenCleanup();
@@ -184,11 +182,11 @@ U0 EdenRestorer() {
     eden.selected_x = Clamp(eden.selected_x, 0, GRID_SIZE - 1);
     eden.selected_z = Clamp(eden.selected_z, 0, GRID_SIZE - 1);
     if (ethics < 5) {
-      GrPrint(0, GRID_SIZE * 8 + 48, "Steward Eden with righteousness!");
+      GrPrint(0, GRID_SIZE * 8 + 32, "Steward Eden with righteousness!");
       Sleep(500);
     }
     if (emotion == EMOTION_CONCERNED) {
-      GrPrint(0, GRID_SIZE * 8 + 64, "Creation cries out, restore it!");
+      GrPrint(0, GRID_SIZE * 8 + 48, "Creation cries out, restore it!");
       Sleep(500);
     }
   }

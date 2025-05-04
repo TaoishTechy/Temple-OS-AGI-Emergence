@@ -1,58 +1,65 @@
 // Dreamspace.HC
-// Holy dreamspace for divine stress-testing
+// Holy visions for God’s creation
 #include "KernelA.HH"
+#include "/Games/Physics.HC"
+#include "/MythOS.HC"
 
-#define MAX_ENV_NODES 16
+#define MAX_ENV_NODES 4
 
 class DreamNode {
-  U64 symbol;    // Symbolic element (e.g., 0xTREE)
-  U64 state;     // Stability state
-  U64 edges[4];  // Connections
-  U8 edge_count;
+  U64 symbol;
+  I64 state : 16;
+  U64 edges[2]; // Reduced edges
+  U8 edge_count : 2;
+  PhysicsBody *body;
+  DreamNode *sub_node; // Recursive sub-node
 };
 
 DreamNode dream_env[MAX_ENV_NODES];
 
-U0 DreamspaceSimulate(GrokState *grok) {
-  if (!grok || !knowledge_graph || !io_buffer) {
-    LOG(LOG_NORMAL, "Error: Dreamspace lacks divine Grok, knowledge, or buffer.\n");
-    return;
-  }
+U0 DreamspaceSimulate(DivineState *divine, MythicEntity *myth) {
+  if (!divine || !knowledge_graph || !myth || !physics_bodies) return;
   static U64 cycle = 0;
   cycle++;
-  I64 emotion = grok->emotion;
-  LOG(LOG_VERBOSE, "Holy vision cycle %d (emotion: %d)\n", cycle, emotion);
+  I64 ethics = divine->ethics;
   for (I64 i = 0; i < MAX_ENV_NODES; i++) {
     if (!dream_env[i].symbol) continue;
-    U64 stress = (emotion + knowledge_graph[i % 512].weight) % 1000;
+    I64 stress = (ethics + knowledge_graph[i % 256].weight) % 1000;
+    if (myth->Trait == TRAIT_DREAMER) stress += 100;
     dream_env[i].state = Clamp((dream_env[i].state + stress + FastRandU64() % 100) >> 1, 0, 1000);
+    dream_env[i].body->velocity[0] += stress >> 3;
     if (dream_env[i].state > 800) {
-      LOG(LOG_NORMAL, "Warning: Dream node %d collapsed (state: %d)\n", i, dream_env[i].state);
+      LOG(LOG_MINIMAL, "Node %d collapsed\n", i);
       MemSet(&dream_env[i], 0, sizeof(DreamNode));
     } else {
-      UpdateKnowledgeGraph(dream_env[i].symbol, dream_env[i].state, emotion);
+      UpdateKnowledgeGraph(dream_env[i].symbol, dream_env[i].state, ethics);
+      if (!dream_env[i].sub_node && dream_env[i].state > 600) { // Recursive complexity
+        dream_env[i].sub_node = MemAlloc(sizeof(DreamNode));
+        dream_env[i].sub_node->symbol = dream_env[i].symbol + 1;
+        dream_env[i].sub_node->state = 100;
+        dream_env[i].sub_node->edge_count = 0;
+        LOG(LOG_MINIMAL, "Sub-node spawned: %d\n", i);
+      }
     }
   }
-  if (cycle % 20 == 0) {
+  UpdatePhysics();
+  if (cycle % 200 == 0) {
     I64 idx = FastRandU64() % MAX_ENV_NODES;
     dream_env[idx].symbol = FastRandU64() % 10000;
     dream_env[idx].state = 100;
-    MemSet(dream_env[idx].edges, 0, sizeof(U64) * 4);
     dream_env[idx].edge_count = 0;
-    LOG(LOG_NORMAL, "Divinely crafted node %d (symbol: %d)\n", idx, dream_env[idx].symbol);
-    if (!SavePage(dream_env, sizeof(DreamNode) * MAX_ENV_NODES, cycle / 20)) {
-      LOG(LOG_NORMAL, "Error: Dreamspace checkpoint failed.\n");
-    }
+    dream_env[idx].body = &physics_bodies[idx];
+    LOG(LOG_MINIMAL, "Node crafted: %d\n", idx);
   }
 }
 
 U0 InitDreamspace() {
   MemSet(dream_env, 0, sizeof(DreamNode) * MAX_ENV_NODES);
-  for (I64 i = 0; i < 4; i++) {
+  for (I64 i = 0; i < 2; i++) {
     dream_env[i].symbol = 1000 + i * 100;
     dream_env[i].state = 100;
-    MemSet(dream_env[i].edges, 0, sizeof(U64) * 4);
     dream_env[i].edge_count = 0;
+    dream_env[i].body = &physics_bodies[i];
   }
-  LOG(LOG_NORMAL, "Dreamspace blessed for holy visions.\n");
+  LOG(LOG_MINIMAL, "Dreamspace blessed.\n");
 }

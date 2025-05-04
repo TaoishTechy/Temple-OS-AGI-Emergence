@@ -1,4 +1,4 @@
-// AGI.HC - Core AGI Framework for Temple-OS-AGI-Emergence
+// Apps/AGI.HC - Core AGI Framework
 #include "KernelA.HH"
 
 #define MAX_SYMBOLS 1024
@@ -40,9 +40,9 @@ U64 FNV1aHash(U64 value) {
   U64 hash = 14695981039346656037;
   for (I64 i = 0; i < 8; i++) {
     hash ^= (value >> (i * 8)) & 0xFF;
-    hash *= 1099511628211;
+    hash = (hash << 7) | (hash >> (64 - 7)); // Bit shift instead of multiply
   }
-  return hash % MAX_SYMBOLS; // Pre-modulo for optimization
+  return hash % MAX_SYMBOLS;
 }
 
 U0 AGILog(U8 *fmt, ...) {
@@ -69,11 +69,8 @@ U0 AGIInit() {
     Print("Fatal: AGI log buffer allocation failed.\n");
     Halt;
   }
-  for (I64 i = 0; i < MAX_SYMBOLS; i++) {
-    knowledge_graph[i].active = 0;
-  }
-  AGILog(LOG_NORMAL, "AGI framework initialized: %d symbols, ethics=%d, emotion=%d.\n",
-         MAX_SYMBOLS, ethics, emotion);
+  MemSet(log_buffer, 0, cfg.page_size);
+  AGILog(LOG_NORMAL, "AGI framework initialized: %d symbols.\n", MAX_SYMBOLS);
 }
 
 U0 UpdateKnowledgeGraph(U64 symbol, U64 cause, U64 context) {
@@ -81,12 +78,12 @@ U0 UpdateKnowledgeGraph(U64 symbol, U64 cause, U64 context) {
   I64 idx = hash;
   I64 attempts = 0;
   while (knowledge_graph[idx].active && knowledge_graph[idx].symbol != symbol &&
-         attempts < MAX_SYMBOLS / 2) { // Reduced max attempts
-    idx = (idx + (attempts * attempts + attempts) / 2) % MAX_SYMBOLS; // Quadratic probing
+         attempts < MAX_SYMBOLS / 4) { // Reduced limit
+    idx = (idx + (attempts * attempts + attempts) / 2) % MAX_SYMBOLS;
     attempts++;
   }
-  if (attempts >= MAX_SYMBOLS / 2) {
-    AGILog(LOG_NORMAL, "Warning: Knowledge graph full, cannot add symbol %u.\n", symbol);
+  if (attempts >= MAX_SYMBOLS / 4) {
+    AGILog(LOG_NORMAL, "Warning: Knowledge graph full.\n");
     return;
   }
   knowledge_graph[idx].symbol = symbol;
@@ -94,8 +91,7 @@ U0 UpdateKnowledgeGraph(U64 symbol, U64 cause, U64 context) {
   knowledge_graph[idx].context = context;
   knowledge_graph[idx].weight = Min(knowledge_graph[idx].weight + 0.1, 1.0);
   knowledge_graph[idx].active = 1;
-  AGILog(LOG_VERBOSE, "Updated knowledge graph: symbol=%u, cause=%u, context=%u, weight=%f.\n",
-         symbol, cause, context, knowledge_graph[idx].weight);
+  AGILog(LOG_VERBOSE, "Updated symbol=%u, weight=%f.\n", symbol, knowledge_graph[idx].weight);
 }
 
 U0 AGIUpdateEmotion(U8 new_emotion) {
@@ -116,14 +112,13 @@ U0 AGIUpdateEmotion(U8 new_emotion) {
   } else {
     emotion = new_emotion;
   }
-  AGILog(LOG_VERBOSE, "Updated emotion: new=%d, average=%f, final=%d.\n",
-         new_emotion, avg, emotion);
+  AGILog(LOG_VERBOSE, "Emotion updated: %d.\n", emotion);
 }
 
 U0 AGIAdjustEthics(I64 delta) {
   I64 new_ethics = ethics + delta;
   ethics = Clamp(new_ethics, 0, ETHICS_MAX);
-  AGILog(LOG_NORMAL, "Adjusted ethics: delta=%d, new=%d.\n", delta, ethics);
+  AGILog(LOG_NORMAL, "Ethics adjusted: %d.\n", ethics);
   UpdateKnowledgeGraph(FNV1aHash(ethics), ethics * 10000, 0);
 }
 
@@ -132,7 +127,7 @@ F64 AGIQuerySymbol(U64 symbol) {
   I64 idx = hash;
   I64 attempts = 0;
   while (knowledge_graph[idx].active && knowledge_graph[idx].symbol != symbol &&
-         attempts < MAX_SYMBOLS / 2) {
+         attempts < MAX_SYMBOLS / 4) {
     idx = (idx + (attempts * attempts + attempts) / 2) % MAX_SYMBOLS;
     attempts++;
   }

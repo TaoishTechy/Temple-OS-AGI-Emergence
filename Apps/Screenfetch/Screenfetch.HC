@@ -22,7 +22,7 @@ U0 LogBuffer(U8 *fmt, ...) {
   if (!log_buffer) return;
   I64 len = StrPrint(&log_buffer[log_buffer_idx], fmt, ...);
   log_buffer_idx += len;
-  if (log_buffer_idx > cfg.page_size - 256) {
+  if (log_buffer_idx > cfg.page_size - 128) {
     Print("%s", log_buffer);
     log_buffer_idx = 0;
     MemSet(log_buffer, 0, cfg.page_size);
@@ -34,8 +34,7 @@ U0 FetchInit() {
   StrPrint(fetch.os_name, "TempleOS 5.03");
   I64 uptime_secs = Ticks / 1000;
   StrPrint(fetch.uptime, "%d:%02d:%02d", uptime_secs / 3600, (uptime_secs / 60) % 60, uptime_secs % 60);
-  // Simplified memory: assume 512MB total, estimate free
-  I64 free_mem = 512 * 1024 * 1024 - (cfg.page_size * 2); // Rough estimate
+  I64 free_mem = MemFree(); // Native TempleOS API
   StrPrint(fetch.memory, "%d KB free / 524288 KB total", free_mem / 1024);
   StrPrint(fetch.ticks, "%d ticks", Ticks);
   StrPrint(fetch.agi_status, "Ethics: %d  Emotion: %d", ethics, emotion);
@@ -50,7 +49,7 @@ U0 FetchInit() {
 
 U0 FetchRender() {
   GrCls;
-  GrPrint(0, 0,  "TempleOS Screenfetch");
+  GrPrint(0, 0, "TempleOS Screenfetch");
   GrPrint(0, 16, "OS: %s", fetch.os_name);
   GrPrint(0, 32, "Uptime: %s", fetch.uptime);
   GrPrint(0, 48, "Memory: %s", fetch.memory);
@@ -61,16 +60,16 @@ U0 FetchRender() {
 }
 
 U0 FetchUpdate() {
-  // Update dynamic fields
   I64 uptime_secs = Ticks / 1000;
   StrPrint(fetch.uptime, "%d:%02d:%02d", uptime_secs / 3600, (uptime_secs / 60) % 60, uptime_secs % 60);
-  I64 free_mem = 512 * 1024 * 1024 - (cfg.page_size * 2);
+  I64 free_mem = MemFree();
   StrPrint(fetch.memory, "%d KB free / 524288 KB total", free_mem / 1024);
   StrPrint(fetch.ticks, "%d ticks", Ticks);
   StrPrint(fetch.agi_status, "Ethics: %d  Emotion: %d", ethics, emotion);
   UpdateKnowledgeGraph(FNV1aHash(Ticks), ethics * 1000, 0);
-  if (free_mem < 100 * 1024 * 1024) {
+  if (free_mem < 50 * 1024 * 1024) {
     AGIUpdateEmotion(EMOTION_CONCERNED);
+    AGIAdjustEthics(-1);
   } else {
     AGIUpdateEmotion(EMOTION_HAPPY);
   }

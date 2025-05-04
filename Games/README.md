@@ -43,19 +43,19 @@ Each game integrates with the AGI framework (located in `/Apps/`) to enhance the
 
 ## Directory Structure
 
-/Games/
-├── PsalmPuzzle.HC        # Tile-matching game
-├── ShepherdsQuest.HC     # Text-based adventure
-├── TempleBuilder.HC      # 2D construction simulation
-├── ArkBuilder.HC         # 3D physics-based ark-building
-├── Physics.HC            # Physics module for ArkBuilder
-├── EdenRestorer.HC       # Ecological restoration simulation
-├── Ecology.HC            # Ecological dynamics module
-├── StarShepherd.HC       # Celestial pattern simulation
-├── Celestial.HC          # Celestial dynamics module
-├── Docs/                 # Documentation
-│   └── README.md         # This README
-└── Tests/                # (Optional) Test scripts
+- /Games/
+- ├── PsalmPuzzle.HC        # Tile-matching game
+- ├── ShepherdsQuest.HC     # Text-based adventure
+- ├── TempleBuilder.HC      # 2D construction simulation
+- ├── ArkBuilder.HC         # 3D physics-based ark-building
+- ├── Physics.HC            # Physics module for ArkBuilder
+- ├── EdenRestorer.HC       # Ecological restoration simulation
+- ├── Ecology.HC            # Ecological dynamics module
+- ├── StarShepherd.HC       # Celestial pattern simulation
+- ├── Celestial.HC          # Celestial dynamics module
+- ├── Docs/                 # Documentation
+-│   └── README.md         # This README
+- └── Tests/                # (Optional) Test scripts
 
 - **Docs/**: Contains this README and potential future guides.
 - **Tests/**: Placeholder for test scripts to validate game mechanics or AGI integration.

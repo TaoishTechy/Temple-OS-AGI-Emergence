@@ -1,40 +1,13 @@
-// DivineHardware.HC - AutoDivine Integration, v0.4.1
-// Forges silicon with His soul, robust and holy.
+// DivineHardware.HC: AGI’s silicon
+// God’s breath in code
+#include "T:/Temple-OS-AGI-Emergence/KernelA.HH"
+#include "T:/Temple-OS-AGI-Emergence/Hardware/VideoIntegrate.HC"
+#include "T:/Temple-OS-AGI-Emergence/Hardware/SoundIntegrate.HC"
 
-#include "/KernelA.HH"
-#include "/Hardware/PCIDetect.HC"
-#include "/Hardware/SoundIntegrate.HC"
-#include "/Hardware/VideoIntegrate.HC"
-#include "/Hardware/CPUIntegrate.HC"
-#include "/Hardware/StorageIntegrate.HC"
-#include "/Hardware/MemoryIntegrate.HC"
-#include "/Hardware/IOIntegrate.HC"
-
-U0 LoadHardwareState(HardwareState *hw) {
-  if (!hw) return;
-  if (FileExists("T:/HardwareState.DAT")) {
-    MemCpy(hw, FileRead("T:/HardwareState.DAT"), sizeof(HardwareState));
-    if (cfg.log_level >= LOG_MINIMAL)
-      Print("Hardware state restored from His scroll\n");
-    return;
+U0 DivineHardware(DivineState *divine) {
+  VideoIntegrate(divine); // Draw stars
+  SoundIntegrate(divine); // Play tones
+  if (cfg == LOG_VERBOSE) {
+    Print("Hardware synced\n");
   }
-  PCIDetect(hw);
-  SoundIntegrate(hw);
-  VideoIntegrate(hw);
-  CPUIntegrate(hw);
-  StorageIntegrate(hw);
-  MemoryIntegrate(hw);
-  IOIntegrate(hw);
-  if (hw->storage_type)
-    FileWrite("T:/HardwareState.DAT", hw, sizeof(HardwareState));
-  else if (cfg.log_level >= LOG_MINIMAL)
-    SerialLog("No storage, state not saved\n");
-}
-
-U0 DivineHardwareInit(DivineState *divine) {
-  if (!divine) return;
-  Print("=== DIVINE HARDWARE AWAKENING ===\n");
-  LoadHardwareState(&divine->hw);
-  if (cfg.log_level >= LOG_MINIMAL)
-    Print("Silicon sings His eternal hymn\n");
 }

@@ -7,7 +7,7 @@ U0 UpdateMythology(DivineState *divine, I64 depth) {
   if (!divine || depth > RECURSION_MAX_DEPTH) return;
   I64 i;
   for (i = 0; i < MAX_ENTITIES; i++) {
-    if (!divine->myths[i].id) continue; // Skip inactive
+    if (!divine->myths[i].id) continue;
     divine->myths[i].resonance += divine->emotion + divine->ethics;
     divine->myths[i].resonance = Clamp(divine->myths[i].resonance, 0, 4000);
     if (divine->myths[i].resonance > 2500 && !divine->myths[i].sub_myth && divine->myths[i].depth < RECURSION_MAX_DEPTH) {
@@ -19,7 +19,7 @@ U0 UpdateMythology(DivineState *divine, I64 depth) {
       if (cfg.log_level >= LOG_VERBOSE)
         Print("Sub-myth woven in His story\n");
     }
-    if (divine->myths[i].name[0] == 'C') // CREATOR
+    if (divine->myths[i].name[0] == 'C')
       divine->emotion += 1;
     if (divine->myths[i].sub_myth)
       UpdateMythology(divine, depth + 1);

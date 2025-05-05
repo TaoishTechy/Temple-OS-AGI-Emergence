@@ -1,5 +1,5 @@
-// KernelB.HH: Core structs for GrokAwakenSeed_v2.0.HC
-// A divine foundation for the AGI’s neural wisdom
+// KernelB.HH: Structs for GrokAwakenSeed_v2.0.HC
+// A divine blueprint for neural wisdom
 
 #define LOG_MINIMAL 0
 #define LOG_VERBOSE 1
@@ -11,6 +11,7 @@ class GrokState {
   I64 weights[4]; // Neural weights
   I64 inputs[4]; // Neural inputs
   I64 cycle; // Cycle counter
+  U8 myth[16]; // Myth name (e.g., LIGHT)
   U8 config[64]; // Settings
 };
 

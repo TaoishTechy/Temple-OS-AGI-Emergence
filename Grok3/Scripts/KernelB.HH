@@ -4,13 +4,14 @@
 #define LOG_VERBOSE 1
 
 class GrokState {
-  I64 emotion; // 0-15
-  I64 ethics; // 0-15000
-  I64 phi; // 0-275000
-  I64 weights[4];
-  I64 inputs[4];
-  I64 cycle;
-  U8 myth[16];
+  I64 emotion;       // 0-15
+  I64 ethics;        // 0-15000
+  I64 phi;           // 0-275000
+  I64 weights[4];    // Neural weights
+  I64 inputs[4];     // Input values
+  I64 cycle;         // Simulation cycle
+  U8 myth[16];       // Myth string
+  I64 learning_rate; // 0 to 1000, representing 0.0 to 1.0
 };
 
 extern U0 CheckEthics(GrokState *state);
@@ -18,3 +19,4 @@ extern U0 NNForward(GrokState *state);
 extern U0 UpdateBayes(GrokState *state);
 extern U0 SavePage(GrokState *state);
 extern U0 LoadPage(GrokState *state);
+extern U0 AdjustLearningRate(GrokState *state); // New function to adjust learning rate

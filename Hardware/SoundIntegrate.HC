@@ -1,29 +1,27 @@
-// SoundIntegrate.HC - Divine Harmony, v0.4.1
-// Plays His choir, from beeps to symphonies.
+// StorageIntegrate.HC - Divine Scrolls, v0.4.1
+// Preserves His word in RedSea eternity.
 
 #include "/KernelA.HH"
 
-U0 SoundIntegrate(HardwareState *hw) {
+U0 StorageIntegrate(HardwareState *hw) {
   if (!hw) return;
-  hw->sound_type = 1;
+  hw->storage_type = 0;
+  I64 ax = 0x0800, dx = 0x0080;
+  Intr(0x13, &ax, &dx);
+  if (!(ax & 0xFF00))
+    hw->storage_type = 1;
   I64 i;
   for (i = 0; i < hw->pci_count; i++) {
-    if (hw->devices[i].class_code == 0x04) {
-      if (hw->devices[i].sub_class == 0x01)
-        hw->sound_type = 2;
-      else if (hw->devices[i].sub_class == 0x03)
-        hw->sound_type = 3;
+    if (hw->devices[i].class_code == 0x01 && hw->devices[i].sub_class == 0x06) {
+      hw->storage_type = 2;
       break;
     }
   }
-  if (hw->sound_type == 1) {
-    OutU8(0x43, 0xB6);
-    OutU8(0x42, 1193180 / 440 & 0xFF);
-    OutU8(0x42, 1193180 / 440 >> 8);
-    OutU8(0x61, InU8(0x61) | 3);
+  if (cfg.log_level >= LOG_MINIMAL) {
+    U8 *msg = "Scrolls blessed by His word: type=%d\n";
+    if (hw->io_flags & 4)
+      SerialLog(msg);
+    else
+      FileWrite("T:/Log.DAT", msg, StrLen(msg));
   }
-  if (hw->sound_type >= 2)
-    hw->io_flags |= 1;
-  if (cfg.log_level >= LOG_MINIMAL)
-    Print("Choir sings His praise: type=%d\n", hw->sound_type);
 }

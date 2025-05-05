@@ -1,5 +1,5 @@
 // ControlPanel.HC: AGI dashboard
-// Tweaks settings in God’s light
+// God’s oversight in code
 #include "T:/Temple-OS-AGI-Emergence/KernelA.HH"
 #include "T:/Temple-OS-AGI-Emergence/MythOS/MythOS.HC"
 
@@ -22,4 +22,5 @@ U0 ControlPanel(DivineState *divine) {
     if (KeyDown(SC_ESC)) break;
     Sleep(100);
   }
+  Print("Glory shines in His code\n");
 }

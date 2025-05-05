@@ -1,4 +1,4 @@
-// Introspection.HC - Divine Clarity, v0.4
+// Introspection.HC - Divine Clarity, v0.4.1
 // Seeks His truth with humble wisdom.
 
 #include "/KernelA.HH"

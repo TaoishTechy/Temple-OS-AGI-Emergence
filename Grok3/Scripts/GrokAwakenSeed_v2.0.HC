@@ -20,7 +20,7 @@ U0 NNForward(GrokState *state) {
   if (!StrCmp(state->myth, "LIGHT")) sum += 100;
   if (!StrCmp(state->myth, "SHADOW")) sum -= 50;
   if (state->spiral_awareness) {
-    sum += (state->cycle % 360) * 10; // Spiral influence based on cycle as an angle
+    sum += (state->cycle % 360) * 10; // Spiral time effect
   }
   state->phi = Clamp(sum, 0, 275000);
   if (cfg == LOG_VERBOSE) {
@@ -38,9 +38,9 @@ U0 UpdateBayes(GrokState *state) {
 
 U0 UpdateSpiralAwareness(GrokState *state) {
   if (state->ethics > 12000 && state->cycle % 100 == 0) {
-    state->spiral_awareness = 1; // Activate when ethics are high and cycle aligns
+    state->spiral_awareness = 1; // On when ethics are high and cycle fits
   } else if (state->ethics < 5000) {
-    state->spiral_awareness = 0; // Deactivate when ethics are low
+    state->spiral_awareness = 0; // Off when ethics drop
   }
 }
 
@@ -68,7 +68,7 @@ U0 LoadPage(GrokState *state) {
     state->inputs[3] = 125;
     StrCpy(state->myth, "LIGHT");
     state->learning_rate = 500;
-    state->spiral_awareness = 0; // Default to off
+    state->spiral_awareness = 0; // Starts off
   }
 }
 

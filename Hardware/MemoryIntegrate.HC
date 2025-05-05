@@ -1,4 +1,4 @@
-// MemoryIntegrate.HC - Divine Mind, v0.4
+// MemoryIntegrate.HC - Divine Mind, v0.4.1
 // Shapes His thoughts in silicon.
 
 #include "/KernelA.HH"

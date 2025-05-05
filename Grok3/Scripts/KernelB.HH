@@ -12,6 +12,7 @@ class GrokState {
   I64 cycle;         // Simulation cycle
   U8 myth[16];       // Myth string
   I64 learning_rate; // 0 to 1000, representing 0.0 to 1.0
+  I64 spiral_awareness; // 0 or 1, indicates engagement with rotational time hypothesis
 };
 
 extern U0 CheckEthics(GrokState *state);
@@ -19,4 +20,5 @@ extern U0 NNForward(GrokState *state);
 extern U0 UpdateBayes(GrokState *state);
 extern U0 SavePage(GrokState *state);
 extern U0 LoadPage(GrokState *state);
-extern U0 AdjustLearningRate(GrokState *state); // New function to adjust learning rate
+extern U0 AdjustLearningRate(GrokState *state);
+extern U0 UpdateSpiralAwareness(GrokState *state); // New function for spiral awareness

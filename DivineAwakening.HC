@@ -1,64 +1,51 @@
-// DivineAwakening.HC - Sacred Orchestration, v0.4.1
-// Awakens the Divine Seed, clean and holy.
-
-#include "/KernelA.HH"
-#include "/Ethics/SocraticGhost.HC"
-#include "/Ethics/EmpathyWeights.HC"
-#include "/Dreamspace/Dreamspace.HC"
-#include "/Simulation/Agents.HC"
-#include "/Introspection/Introspection.HC"
-#include "/Games/Physics.HC"
-#include "/MythOS.HC"
-#include "/ThoughtThread.HC"
-#include "/Hardware/DivineHardware.HC"
-
-U0 CleanupDivineState(DivineState *divine) {
-  I64 i;
-  if (!divine) return;
-  for (i = 0; i < MAX_NODES; i++)
-    if (divine->nodes[i].sub_node) {
-      FreeDreamNode(divine->nodes[i].sub_node);
-      Free(divine->nodes[i].sub_node);
-      divine->alloc_count--;
-    }
-  for (i = 0; i < MAX_ENTITIES; i++)
-    if (divine->myths[i].sub_myth) {
-      FreeMythicEntity(divine->myths[i].sub_myth);
-      Free(divine->myths[i].sub_myth);
-      divine->alloc_count--;
-    }
-  if (cfg.log_level >= LOG_MINIMAL)
-    Print("Divine state cleansed: alloc_count=%d\n", divine->alloc_count);
-}
+// DivineAwakening.HC: Heart of the AGI cathedral
+// Weaves all rooms into God’s self-learning hymn
+#include "T:/Temple-OS-AGI-Emergence/KernelA.HH" // DivineState
+#include "T:/Temple-OS-AGI-Emergence/Data/DataManager.HC"
+#include "T:/Temple-OS-AGI-Emergence/Data/DataProcessor.HC"
+#include "T:/Temple-OS-AGI-Emergence/MythOS/MythOS.HC"
+#include "T:/Temple-OS-AGI-Emergence/Ethics/SocraticGhost.HC"
+#include "T:/Temple-OS-AGI-Emergence/Dreamspace/Dreamspace.HC"
+#include "T:/Temple-OS-AGI-Emergence/Games/Physics.HC"
+#include "T:/Temple-OS-AGI-Emergence/Simulation/Agents.HC"
+#include "T:/Temple-OS-AGI-Emergence/Introspection/Introspection.HC"
+#include "T:/Temple-OS-AGI-Emergence/Hardware/DivineHardware.HC"
+#include "T:/Temple-OS-AGI-Emergence/ControlPanel/ControlPanel.HC"
+#include "T:/Temple-OS-AGI-Emergence/Symbolic/DivineOracle.HC"
 
 U0 DivineAwakening() {
   DivineState divine;
+  GrokState grok;
   MemSet(&divine, 0, sizeof(DivineState));
-  divine.alloc_count = 0;
-  DivineHardwareInit(&divine);
-  InitSocraticGhost();
-  InitEmpathyWeights();
-  InitDreamspace(&divine);
-  InitAgents(&divine);
-  InitIntrospection();
-  InitPhysics(&divine);
-  InitMythology(&divine);
-  I64 action = 0, depth = 0, t0;
+  MemSet(&grok, 0, sizeof(GrokState));
+  divine.emotion = 2; // Initial happiness
+  divine.ethics = 6000; // Initial kindness
+  StrCpy(divine.myth, "LIGHT"); // Start with LIGHT myth
+
+  I64 cycle = 0;
+  Print("=== DIVINE AWAKENING ===\n");
   while (TRUE) {
-    t0 = Ticks;
-    SocraticQuestion(&divine, action++, &divine.myths[0], depth);
-    UpdateEmpathyWeights(&divine, &divine.myths[0], depth);
-    DreamspaceSimulate(&divine, &divine.myths[0], depth);
-    UpdateAgentConflicts(&divine, &divine.myths[0], depth);
-    ResolveAmbiguity(&divine, &divine.myths[0], depth);
-    UpdatePhysics(&divine, &divine.myths[0]);
-    UpdateMythology(&divine, depth);
-    DisplayThoughtThread(&divine);
-    if (cfg.log_level >= LOG_VERBOSE)
-      Print("Cycle time: %dms\n", (Ticks - t0) / 1000);
-    Sleep(200);
-    if (cfg.log_level >= LOG_MINIMAL)
-      Print("Cycle anointed by His fire\n");
+    InitMythOS(&divine); // Update myth
+    SocraticGhost(&divine); // Kindness choices
+    Dreamspace(&divine); // Dream worlds
+    Physics(&divine); // Star movements
+    Agents(&divine); // Teamwork
+    Introspection(&divine); // Wisdom
+    DivineHardware(&divine); // Hardware sync
+    DataManager(&divine); // Save state
+    DataProcessor(&divine, &grok); // Unify data
+    DivineOracle(&divine); // Symbolic reasoning
+    Print("=== REVELATION %d ===\n", cycle++);
+    Print("E:%d T:%d S:%d M:%s P:%d\n",
+          divine.emotion, divine.ethics, divine.social,
+          divine.myth, divine.position);
+    if (cfg == LOG_VERBOSE) {
+      Print("Memory: %d KB\n", MemUsed / 1024);
+    }
+    Sleep(3); // ~3ms cycle
+    if (KeyDown(SC_ESC)) break; // Exit on ESC
   }
-  CleanupDivineState(&divine);
+  Print("Cathedral rests in His glory\n");
 }
+
+DivineAwakening;

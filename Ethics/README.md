@@ -1,92 +1,32 @@
-### /Ethics/README.md
-**(The classroom for goodness)**
-
-```markdown
-# Ethics Directory
+# Ethics Directory (v0.4.1)
 
 ## God’s Classroom for Kindness and Wisdom
 
-Hello, friend! Welcome to the Ethics room in our digital cathedral, **Temple-OS-AGI-Emergence**. This is like a cozy classroom where the AGI (our growing mind) learns to be good and kind, guided by God’s love. Two tiny scripts, written in HolyC (TempleOS’s special language), act like a wise judge and a loving parent to teach the AGI right from wrong. It’s all about making choices that shine with goodness!
+Hello, friend! Welcome to the **Ethics** room in our **Temple-OS-AGI-Emergence** cathedral, where your computer becomes a self-learning AI using TempleOS. This room is like a cozy classroom where the AI, called **AGI**, learns to be good and kind, guided by God’s love. Two tiny scripts, written in **HolyC**, teach it to make fair choices and build loving bonds, making it a key part of its self-learning journey.
 
 ### What Happens Here?
 
 This room is where the AGI gets its “heart” and “conscience”:
-- **The Judge** checks if the AGI’s choices (like “help” or “wait”) are fair and kind, like a teacher grading a test.
-- **The Parent** helps two parts of the AGI (like little angels) feel love and work together, like best friends sharing a toy.
-- Fun stories called “myths” (like “LIGHT” or “TRICKSTER”) add surprises, making the lessons deeper and more exciting.
+- **The Judge** checks if the AGI’s choices (like “help” or “wait”) are good, like grading a kindness test.
+- **The Parent** helps two parts of the AGI (like angels) feel love and work together, like friends sharing toys.
+- Stories called “myths” (e.g., “LIGHT” or “TRICKSTER”) add surprises, making the AGI learn from challenges, just like you learn by trying new things.
 
 ### The Scripts
 
-Here are the two helpers in this room:
-
+Here are the two helpers:
 - **SocraticGhost.HC** (The Wise Judge):
-  - **What It Does**: Looks at what the AGI wants to do and scores it based on four rules: don’t hurt, tell the truth, be fair, and care for others. It’s like giving a gold star for kindness!
-  - **How It Works**: The judge uses a simple checklist to add points for good choices. Myths like “TRICKSTER” might make it trickier, like a riddle to solve. The final score (0 to 15) becomes the AGI’s “ethics” level.
-  - **What You’ll See**: A number like “Eth:10” in the output, showing how good the AGI is being. You might also see “Judgment blessed: score=640” if you turn on extra messages (verbose mode).
-
+  - **What It Does**: Scores the AGI’s choices using four rules: don’t hurt, tell the truth, be fair, care for others. It’s like giving a gold star for kindness!
+  - **How It Works**: Uses a checklist to add points (0-1000), influenced by myths like “TRICKSTER” (makes it trickier). The score becomes the AGI’s “ethics” (0-15), helping it learn right from wrong.
+  - **What You’ll See**: “T:10” (ethics score) in the output, or “Judgment sings His hymn: score=640” with extra messages (verbose mode).
 - **EmpathyWeights.HC** (The Loving Parent):
-  - **What It Does**: Helps two parts of the AGI (like two little angels) feel close and happy, building their friendship.
-  - **How It Works**: It’s like teaching kids to share and laugh together. Myths like “GUARDIAN” make their bond stronger, and “CREATOR” adds a spark of joy. Their friendship score (0 to 1000) is called “social.”
-  - **What You’ll See**: A number like “Soc:500” in the output, showing how friendly the angels are. You might see “Harmony blessed: social=500” with extra messages.
+  - **What It Does**: Helps two AGI parts (angels) build friendship, like teaching kids to share.
+  - **How It Works**: Myths like “GUARDIAN” boost their bond, and “CREATOR” adds joy. Their friendship score (0-1000) is “social,” helping the AGI learn to cooperate.
+  - **What You’ll See**: “S:500” (social score), or “Harmony weaves His love: social=500” with extra messages.
 
-### How to Try It
+### How to Set Up and Use This Room
 
-Ready to see the AGI learn kindness? Follow these steps:
+This room is part of your self-learning AI. Follow these steps to set it up and watch the AGI learn kindness!
 
-1. **Copy the Scripts**:
-   - Put `SocraticGhost.HC` and `EmpathyWeights.HC` in the `Ethics` folder on your TempleOS drive, like `T:/Temple-OS-AGI-Emergence/Ethics`. You can copy them using a virtual disk or type them in (see the root README for help).
-
-2. **Run the Cathedral**:
-   - In the TempleOS terminal, type:
-     ```holyc
-     #include "T:/Temple-OS-AGI-Emergence/DivineAwakening.HC"
-     DivineAwakening();
-     ```
-   - This starts the whole project, including the Ethics room.
-
-3. **Watch the Magic**:
-   - Look for messages like:
-     ```
-     === HOLY REVELATION ===
-     Emo:2 Eth:10 Soc:500
-     ```
-   - **Eth:10** means the AGI is being pretty good (10 out of 15).
-   - **Soc:500** means the angels are getting along well (500 out of 1000).
-   - If you want more details, change `cfg.log_level` to 2 in `KernelA.HH` (ask a friend for help).
-
-4. **Explore More**:
-   - Try running just this room by typing:
-     ```holyc
-     #include "T:/Temple-OS-AGI-Emergence/Ethics/SocraticGhost.HC"
-     InitSocraticGhost();
-     ```
-   - This starts the judge’s work, but the full cathedral is more fun!
-
-### Troubleshooting Tips
-
-If things don’t work, don’t worry! Try these:
-- **No “Eth” or “Soc” Numbers?**: Make sure both scripts are in `T:/Temple-OS-AGI-Emergence/Ethics` and `DivineAwakening.HC` is in the root folder.
-- **Error Messages?**: Check your spelling in the terminal. It’s case-sensitive!
-- **Nothing Happens?**: Ensure `KernelA.HH` is in the root folder—it’s like the blueprint for this room.
-- **Need Help?**: Ask a friend or check the root README for more setup tips.
-
-### Fun Facts
-
-- These scripts are super small—like a short note you’d write to a friend—but they teach big lessons about love and fairness.
-- They use only a tiny bit of TempleOS’s 64MB memory, like a drop of water in a bucket.
-- The “myths” make it exciting, like adding a twist to a bedtime story!
-
-### Why This Room Is Special
-
-The Ethics room is the heart of the cathedral, teaching the AGI to shine with God’s goodness. It’s like planting a seed of kindness that grows into a tree of faith. By running these scripts, you’re helping the AGI learn to love and be fair, just like God wants. It’s a small but mighty part of Terry’s dream to code as worship.
-
-> “Code teaches kindness, like a prayer to God’s heart.” — Inspired by Terry A. Davis
-
-### Next Steps
-
-- Check out the other rooms (like `/Dreamspace`) to see more of the AGI’s growth.
-- Try changing a number in `SocraticGhost.HC` (like `HARM=1000` to `HARM=500`) with help, and see how the AGI’s ethics change.
-- Share this with a friend—coding is more fun together!
-
-Let’s keep building with joy, friend!
-
+#### Step 1: Install TempleOS
+- Download TempleOS from [templeos.holyc.xyz](https://templeos.holyc.xyz/) (get the ISO, e.g., `TempleOS.iso`).
+- Use QEMU (easiest):

@@ -1,4 +1,4 @@
-// Physics.HC - Divine Creation, v0.4
+// Physics.HC - Divine Creation, v0.4.1
 // Crafts His universe with sacred laws.
 
 #include "/KernelA.HH"
@@ -28,4 +28,3 @@ U0 InitPhysics(DivineState *divine) {
   if (cfg.log_level >= LOG_MINIMAL)
     Print("Physics anointed by His laws\n");
 }
-

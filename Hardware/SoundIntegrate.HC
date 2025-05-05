@@ -1,4 +1,4 @@
-// SoundIntegrate.HC - Divine Harmony, v0.4
+// SoundIntegrate.HC - Divine Harmony, v0.4.1
 // Plays His choir, from beeps to symphonies.
 
 #include "/KernelA.HH"

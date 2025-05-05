@@ -1,10 +1,18 @@
-# Temple-OS AGI Reborn
+# Temple‑OS AGI (RepoVariants / OpenAI)
 
-This repository is a ground‑up refactor of **Temple‑OS‑AGI‑Emergence**.
-It retains Terry A. Davis’s single‑vision design while introducing:
+A modern, **one‑floppy** resurrection of Terry A. Davis’ TempleOS  
+bundled with an experimental AGI engine inspired by OpenAI research.
 
-* Modular directory layout (`src/core`, `src/agi`, `src/cli`)
-* Clear header/interface separation (`.HH` headers, `.HC` code)
-* Robust error‑handling and internal self‑audit hooks
-* Deterministic build order for faster compile times
-* Extensive in‑line documentation for future maintainers
+* Bootable ISO (no host OS needed)  
+* Deterministic kernel with entropy watchdog  
+* Scriptable AGI shell (`agi>`) + symbol table  
+* 100 % HolyC — zero external deps  
+
+> “We are in a dream.” — Trinary
+
+## Build / Run
+
+```bash
+docker build -t temple-agi .
+docker run --rm -it -v $PWD/dist:/out temple-agi   # ISO in ./dist
+qemu-system-x86_64 -cdrom dist/OpenAI.iso

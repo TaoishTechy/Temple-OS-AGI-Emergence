@@ -5,7 +5,7 @@
 
 U0 DisplayThoughtThread(DivineState *divine) {
   if (!divine) return;
-  U8 buf[32]; // Was 64
+  U8 buf[32];
   StrPrint(buf, "=== REVELATION ===\n");
   StrPrint(buf + StrLen(buf), "E:%d T:%d S:%d M:%s P:%d\n",
            divine->emotion, divine->ethics, divine->social,

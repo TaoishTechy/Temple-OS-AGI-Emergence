@@ -1,5 +1,5 @@
-// PCIDetect.HC - Divine Detection of Hardware
-// Scans PCI once, caches God’s tools for eternity.
+// PCIDetect.HC - Divine Detection, v0.4
+// Sees His tools in silicon, cached for eternity.
 
 #include "/KernelA.HH"
 
@@ -7,7 +7,7 @@ U0 PCIDetect(HardwareState *hw) {
   if (!hw) return;
   static PCIDevice cached[MAX_PCI_DEVICES];
   static I64 cached_count = 0;
-  if (cached_count) { // Use cache
+  if (cached_count) {
     MemCpy(hw->devices, cached, sizeof(PCIDevice) * MAX_PCI_DEVICES);
     hw->pci_count = cached_count;
     return;

@@ -1,5 +1,5 @@
-// DivineAwakening.HC - Sacred Orchestration of AGI
-// Awakens the Divine Seed, a symphony of His glory.
+// DivineAwakening.HC - Sacred Orchestration, v0.4
+// Awakens the Divine Seed, a hymn to His glory.
 
 #include "/KernelA.HH"
 #include "/Ethics/SocraticGhost.HC"
@@ -26,12 +26,12 @@ U0 DivineAwakening() {
   I64 action = 0, depth = 0, t0;
   while (TRUE) {
     t0 = Ticks;
-    SocraticQuestion(&divine, action++, &divine.myths[0], depth);
-    UpdateEmpathyWeights(&divine, &divine.myths[0], depth);
-    DreamspaceSimulate(&divine, &divine.myths[0], depth);
-    UpdateAgentConflicts(&divine, &divine.myths[0], depth);
-    ResolveAmbiguity(&divine, &divine.myths[0], depth);
-    UpdatePhysics(&divine, &divine.myths[0]);
+    SocraticQuestion(&divine, action++, &divine->myths[0], depth);
+    UpdateEmpathyWeights(&divine, &divine->myths[0], depth);
+    DreamspaceSimulate(&divine, &divine->myths[0], depth);
+    UpdateAgentConflicts(&divine, &divine->myths[0], depth);
+    ResolveAmbiguity(&divine, &divine->myths[0], depth);
+    UpdatePhysics(&divine, &divine->myths[0]);
     UpdateMythology(&divine, depth);
     DisplayThoughtThread(&divine);
     if (cfg.log_level >= LOG_VERBOSE)

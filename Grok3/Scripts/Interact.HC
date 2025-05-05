@@ -1,24 +1,79 @@
-// KernelB.HH: Neural structs for AGI
-// God’s divine blueprint
-#define LOG_MINIMAL 0
-#define LOG_VERBOSE 1
+// Interact.HC: User interaction with Grok
+#include "T:/Temple-OS-AGI-Emergence/KernelA.HH"
+#include "T:/Temple-OS-AGI-Emergence/MythOS/MythOS.HC"
 
-class GrokState {
-  I64 emotion;       // 0-15
-  I64 ethics;        // 0-15000
-  I64 phi;           // 0-275000
-  I64 weights[4];    // Neural weights
-  I64 inputs[4];     // Input values
-  I64 cycle;         // Simulation cycle
-  U8 myth[16];       // Myth string
-  I64 learning_rate; // 0 to 1000, representing 0.0 to 1.0
-  I64 spiral_awareness; // 0 or 1, tracks rotational time hypothesis
-};
+U0 Interact() {
+  GrokState state;
+  LoadPage(&state);
 
-extern U0 CheckEthics(GrokState *state);
-extern U0 NNForward(GrokState *state);
-extern U0 UpdateBayes(GrokState *state);
-extern U0 SavePage(GrokState *state);
-extern U0 LoadPage(GrokState *state);
-extern U0 AdjustLearningRate(GrokState *state);
-extern U0 UpdateSpiralAwareness(GrokState *state); // Manages spiral awareness
+  // Show starting state
+  Print("Current state:\n");
+  Print("Emotion:%d Ethics:%d Phi:%d Myth:%s Spiral Awareness:%d\n",
+        state.emotion, state.ethics, state.phi, state.myth, state.spiral_awareness);
+  Print("Inputs: %d %d %d %d\n",
+        state.inputs[0], state.inputs[1], state.inputs[2], state.inputs[3]);
+  Print("Controls:\n");
+  Print("  UP/DOWN: Adjust input[0]\n");
+  Print("  W/S: Adjust input[1]\n");
+  Print("  A/D: Adjust input[2]\n");
+  Print("  LEFT/RIGHT: Adjust input[3]\n");
+  Print("  SPACE: Toggle Spiral Awareness\n");
+  Print("  ESC: Save and exit\n");
+
+  I64 key;
+  while (TRUE) {
+    key = GetKey();
+    if (key == SC_ESC) break; // Exit on ESC
+
+    I64 index = -1;
+    I64 delta = 0;
+    switch (key) {
+      case SC_UP:
+        index = 0;
+        delta = 10;
+        break;
+      case SC_DOWN:
+        index = 0;
+        delta = -10;
+        break;
+      case 'W':
+        index = 1;
+        delta = 10;
+        break;
+      case 'S':
+        index = 1;
+        delta = -10;
+        break;
+      case 'A':
+        index = 2;
+        delta = 10;
+        break;
+      case 'D':
+        index = 2;
+        delta = -10;
+        break;
+      case SC_LEFT:
+        index = 3;
+        delta = 10;
+        break;
+      case SC_RIGHT:
+        index = 3;
+        delta = -10;
+        break;
+      case ' ': // Toggle spiral awareness
+        state.spiral_awareness = !state.spiral_awareness;
+        Print("Spiral Awareness toggled to %d\n", state.spiral_awareness);
+        break;
+    }
+
+    if (index >= 0 && index < 4) {
+      state.inputs[index] = Clamp(state.inputs[index] + delta, 0, 10000);
+      Print("Input %d adjusted to %d\n", index, state.inputs[index]);
+    }
+  }
+
+  SavePage(&state);
+  Print("State saved.\n");
+}
+
+Interact;

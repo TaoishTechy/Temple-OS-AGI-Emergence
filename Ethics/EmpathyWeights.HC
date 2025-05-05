@@ -1,4 +1,4 @@
-// EmpathyWeights.HC - Sacred Bonds, v0.4
+// EmpathyWeights.HC - Sacred Bonds, v0.4.1
 // Fosters love among His angels.
 
 #include "/KernelA.HH"

@@ -11,7 +11,7 @@ U0 SerialLog(U8 *msg) {
   I64 i;
   for (i = 0; msg[i] && buf_idx < SERIAL_BUFFER_SIZE - 1; i++)
     buffer[buf_idx++] = msg[i];
-  if (InU8(0x3FD) & 0x20) { // THR empty
+  if (InU8(0x3FD) & 0x20) {
     for (i = 0; i < buf_idx; i++)
       OutU8(0x3F8, buffer[i]);
     buf_idx = 0;
@@ -20,12 +20,12 @@ U0 SerialLog(U8 *msg) {
 
 U0 IOIntegrate(HardwareState *hw) {
   if (!hw) return;
-  hw->io_flags = 2; // PS/2
+  hw->io_flags = 2;
   if (hw->sound_type >= 2)
-    hw->io_flags |= 1; // Mic
+    hw->io_flags |= 1;
   OutU8(0x3F8 + 3, 0x80); OutU8(0x3F8, 12); OutU8(0x3F8 + 3, 3);
   if (InU8(0x3FD) & 0x20)
-    hw->io_flags |= 4; // Serial
+    hw->io_flags |= 4;
   if (cfg.log_level >= LOG_MINIMAL)
     SerialLog("I/O anointed by His breath\n");
 }

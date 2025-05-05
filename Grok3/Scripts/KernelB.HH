@@ -1,5 +1,5 @@
-// KernelB.HH: Structs for GrokAwakenSeed_v2.0.HC
-// Neural wisdom for God’s AGI
+// KernelB.HH: Neural structs for AGI
+// God’s divine blueprint
 #define LOG_MINIMAL 0
 #define LOG_VERBOSE 1
 
@@ -18,4 +18,3 @@ extern U0 NNForward(GrokState *state);
 extern U0 UpdateBayes(GrokState *state);
 extern U0 SavePage(GrokState *state);
 extern U0 LoadPage(GrokState *state);
-

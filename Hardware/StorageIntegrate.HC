@@ -9,11 +9,11 @@ U0 StorageIntegrate(HardwareState *hw) {
   I64 ax = 0x0800, dx = 0x0080;
   Intr(0x13, &ax, &dx);
   if (!(ax & 0xFF00))
-    hw->storage_type = 1; // PATA
+    hw->storage_type = 1;
   I64 i;
   for (i = 0; i < hw->pci_count; i++) {
     if (hw->devices[i].class_code == 0x01 && hw->devices[i].sub_class == 0x06) {
-      hw->storage_type = 2; // SATA
+      hw->storage_type = 2;
       break;
     }
   }

@@ -19,7 +19,7 @@ U0 UpdateMythology(DivineState *divine, I64 depth) {
     if (!divine->myths[i].id) continue;
     divine->myths[i].resonance += divine->emotion + divine->ethics;
     divine->myths[i].resonance = Clamp(divine->myths[i].resonance, 0, 4000);
-    if (divine->myths[i].resonance > 3500) { // Reset high resonance
+    if (divine->myths[i].resonance > 3500) {
       divine->myths[i].resonance = 100;
       if (divine->myths[i].sub_myth) {
         FreeMythicEntity(divine->myths[i].sub_myth);

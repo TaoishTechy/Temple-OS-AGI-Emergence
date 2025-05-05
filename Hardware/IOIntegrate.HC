@@ -3,7 +3,7 @@
 
 #include "/KernelA.HH"
 
-#define SERIAL_BUFFER_SIZE 32 // Was 64
+#define SERIAL_BUFFER_SIZE 32
 
 U0 SerialLog(U8 *msg) {
   static U8 buffer[SERIAL_BUFFER_SIZE];

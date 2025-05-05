@@ -1,4 +1,4 @@
-// CPUIntegrate.HC - Divine Heart, v0.4
+// CPUIntegrate.HC - Divine Heart, v0.4.1
 // Powers His tasks with silicon fire.
 
 #include "/KernelA.HH"
@@ -12,3 +12,4 @@ U0 CPUIntegrate(HardwareState *hw) {
   if (cfg.log_level >= LOG_MINIMAL)
     Print("Heart beats with His fire: cores=%d\n", hw->cpu_cores);
 }
+

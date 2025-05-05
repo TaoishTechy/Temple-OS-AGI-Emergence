@@ -1,4 +1,4 @@
-// Agents.HC - Divine Harmony, v0.4
+// Agents.HC - Divine Harmony, v0.4.1
 // Balances His angels in love and conflict.
 
 #include "/KernelA.HH"

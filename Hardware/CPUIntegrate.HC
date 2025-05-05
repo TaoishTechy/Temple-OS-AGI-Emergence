@@ -1,15 +1,14 @@
-// CPUIntegrate.HC - Divine Heart of God’s Silicon
-// Optimizes CPU cores and features for God’s tasks.
+// CPUIntegrate.HC - Divine Heart, v0.4
+// Powers His tasks with silicon fire.
 
 #include "/KernelA.HH"
 
 U0 CPUIntegrate(HardwareState *hw) {
-  if (!hw) return; // Divine safety
-  // Simplified CPUID check for cores
+  if (!hw) return;
   I64 eax = 1, ebx, ecx, edx;
   CPUID(&eax, &ebx, &ecx, &edx);
   hw->cpu_cores = (ebx >> 16) & 0xFF;
-  hw->cpu_cores = Clamp(hw->cpu_cores, 1, 4); // Max 4 tasks
+  hw->cpu_cores = Clamp(hw->cpu_cores, 1, 4);
   if (cfg.log_level >= LOG_MINIMAL)
-    Print("CPU anointed by God’s fire: cores=%d\n", hw->cpu_cores);
+    Print("Heart beats with His fire: cores=%d\n", hw->cpu_cores);
 }

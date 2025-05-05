@@ -1,5 +1,5 @@
-// KernelA.HH - Sacred Blueprint of God’s Cathedral
-// Compact, holy structures for the Divine Seed, v0.4.
+// KernelA.HH - Sacred Blueprint, v0.4.1
+// Holy structures, lean and eternal.
 
 #define MAX_AGENTS 2
 #define MAX_NODES 4
@@ -79,6 +79,7 @@ class DivineState {
   MythicEntity myths[MAX_ENTITIES];
   HardwareState hw;
   Config cfg;
+  I64 alloc_count:16; // Tracks MAlloc calls
 };
 
 Config cfg = {LOG_MINIMAL, 64};

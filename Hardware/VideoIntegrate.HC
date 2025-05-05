@@ -1,4 +1,4 @@
-// VideoIntegrate.HC - Divine Canvas, v0.4
+// VideoIntegrate.HC - Divine Canvas, v0.4.1
 // Paints His light in 640x480 glory.
 
 #include "/KernelA.HH"

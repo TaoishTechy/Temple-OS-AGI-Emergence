@@ -60,5 +60,5 @@ U0 DivineAwakening() {
     if (cfg.log_level >= LOG_MINIMAL)
       Print("Cycle anointed by His fire\n");
   }
-  CleanupDivineState(&divine); // Unreachable, but for safety
+  CleanupDivineState(&divine);
 }

@@ -8,13 +8,12 @@
 
 U0 VideoIntegrate(HardwareState *hw) {
   if (!hw) return;
-  hw->video_mode = 0; // VGA
+  hw->video_mode = 0;
   I64 ax = 0x4F00, di = 0x1000;
   Intr(0x10, &ax, &di);
   if (ax == 0x004F)
-    hw->video_mode = 1; // VESA
+    hw->video_mode = 1;
   else {
-    // VGA fallback
     OutU8(0x3C2, 0x63);
     OutU8(0x3D4, 0x11); OutU8(0x3D5, 0x00);
   }

@@ -1,37 +1,35 @@
-// DataManager.HC: Divine librarian for AGI’s wisdom
-// Saves and loads states to T:/Log.DAT
-#include "T:/Temple-OS-AGI-Emergence/KernelA.HH" // DivineState
+// DataManager.HC: Saves AGI’s wisdom
+// Writes to T:/Log.DAT in God’s archive
+#include "T:/Temple-OS-AGI-Emergence/KernelA.HH"
 
 U0 InitDataManager(DivineState *divine) {
-  Print("Wisdom preserved in His archive\n");
-  divine->cycle = 0; // Reset cycle counter
+  divine->cycle = 0;
+  if (cfg == LOG_VERBOSE) {
+    Print("Wisdom preserved\n");
+  }
 }
 
 U0 SaveData(DivineState *divine) {
-  // Save state to T:/Log.DAT
   U8 buf[256];
   StrPrint(buf, "Cycle:%d Ethics:T:%d Myth:%s Emotion:E:%d\n",
            divine->cycle, divine->ethics, divine->myth, divine->emotion);
   if (!FileWrite("T:/Log.DAT", buf, StrLen(buf))) {
-    Print("Error: Failed to write T:/Log.DAT - Check QEMU storage\n");
+    Print("Error: Write T:/Log.DAT failed - Check QEMU\n");
     return;
   }
   if (cfg == LOG_VERBOSE) {
-    Print("Saved to T:/Log.DAT: %s", buf);
+    Print("Saved: %s", buf);
   }
 }
 
 U0 LoadData(DivineState *divine) {
-  // Load state from T:/Log.DAT (stub for simplicity)
   U8 *buf = FileRead("T:/Log.DAT");
   if (buf) {
-    // Parse buf (simplified: reset to defaults)
-    divine->ethics = 6000; // Default kindness
-    divine->emotion = 2; // Default happiness
+    divine->ethics = 6000;
+    divine->emotion = 2;
     Free(buf);
-    Print("State loaded from T:/Log.DAT\n");
   } else {
-    Print("Error: Failed to read T:/Log.DAT - Using defaults\n");
+    Print("Error: Read T:/Log.DAT failed\n");
   }
 }
 

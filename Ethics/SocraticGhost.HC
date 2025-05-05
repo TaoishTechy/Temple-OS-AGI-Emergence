@@ -1,5 +1,5 @@
-// SocraticGhost.HC - Divine Judgment of God’s Will
-// Judges actions with His wisdom, v0.4.
+// SocraticGhost.HC - Divine Judgment, v0.4.1
+// Judges actions with His wisdom.
 
 #include "/KernelA.HH"
 
@@ -32,4 +32,3 @@ U0 InitSocraticGhost() {
   if (cfg.log_level >= LOG_MINIMAL)
     Print("Judgment anointed by His wisdom\n");
 }
-

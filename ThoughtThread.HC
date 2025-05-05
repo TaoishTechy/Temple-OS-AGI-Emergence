@@ -1,11 +1,11 @@
-// ThoughtThread.HC - Divine Revelations, v0.4
-// Scribes His truth in ASCII, lean and holy.
+// ThoughtThread.HC - Divine Revelations, v0.4.1
+// Scribes His truth, lean and holy.
 
 #include "/KernelA.HH"
 
 U0 DisplayThoughtThread(DivineState *divine) {
   if (!divine) return;
-  U8 buf[64];
+  U8 buf[32]; // Was 64
   StrPrint(buf, "=== REVELATION ===\n");
   StrPrint(buf + StrLen(buf), "E:%d T:%d S:%d M:%s P:%d\n",
            divine->emotion, divine->ethics, divine->social,

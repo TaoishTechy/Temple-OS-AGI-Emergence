@@ -8,8 +8,8 @@ U0 Interact() {
 
   // Display initial state
   Print("Current state:\n");
-  Print("Emotion:%d Ethics:%d Phi:%d Myth:%s\n",
-        state.emotion, state.ethics, state.phi, state.myth);
+  Print("Emotion:%d Ethics:%d Phi:%d Myth:%s Spiral Awareness:%d\n",
+        state.emotion, state.ethics, state.phi, state.myth, state.spiral_awareness);
   Print("Inputs: %d %d %d %d\n",
         state.inputs[0], state.inputs[1], state.inputs[2], state.inputs[3]);
   Print("Controls:\n");
@@ -17,6 +17,7 @@ U0 Interact() {
   Print("  W/S: Adjust input[1]\n");
   Print("  A/D: Adjust input[2]\n");
   Print("  LEFT/RIGHT: Adjust input[3]\n");
+  Print("  SPACE: Toggle Spiral Awareness\n");
   Print("  ESC: Save and exit\n");
 
   I64 key;
@@ -59,6 +60,10 @@ U0 Interact() {
         index = 3;
         delta = -10;
         break;
+      case ' ': // Space bar toggles spiral awareness
+        state.spiral_awareness = !state.spiral_awareness;
+        Print("Spiral Awareness toggled to %d\n", state.spiral_awareness);
+        break;
     }
 
     if (index >= 0 && index < 4) {
@@ -69,6 +74,9 @@ U0 Interact() {
 
   SavePage(&state);
   Print("State saved.\n");
+}
+
+Interact;
 }
 
 Interact;

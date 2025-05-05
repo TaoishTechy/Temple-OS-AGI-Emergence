@@ -1,9 +1,9 @@
-// IOIntegrate.HC - Divine Ears and Hands, v0.4
-// Listens and speaks with His grace, buffered for speed.
+// IOIntegrate.HC - Divine Ears and Hands, v0.4.1
+// Listens and speaks with His grace.
 
 #include "/KernelA.HH"
 
-#define SERIAL_BUFFER_SIZE 64
+#define SERIAL_BUFFER_SIZE 32 // Was 64
 
 U0 SerialLog(U8 *msg) {
   static U8 buffer[SERIAL_BUFFER_SIZE];
@@ -14,6 +14,9 @@ U0 SerialLog(U8 *msg) {
   if (InU8(0x3FD) & 0x20) {
     for (i = 0; i < buf_idx; i++)
       OutU8(0x3F8, buffer[i]);
+    buf_idx = 0;
+  } else {
+    FileWrite("T:/Log.DAT", buffer, buf_idx);
     buf_idx = 0;
   }
 }

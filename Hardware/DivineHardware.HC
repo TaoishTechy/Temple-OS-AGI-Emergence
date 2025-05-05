@@ -25,7 +25,7 @@ U0 LoadHardwareState(HardwareState *hw) {
   StorageIntegrate(hw);
   MemoryIntegrate(hw);
   IOIntegrate(hw);
-  if (hw->storage_type) // Only write if storage available
+  if (hw->storage_type)
     FileWrite("T:/HardwareState.DAT", hw, sizeof(HardwareState));
   else if (cfg.log_level >= LOG_MINIMAL)
     SerialLog("No storage, state not saved\n");

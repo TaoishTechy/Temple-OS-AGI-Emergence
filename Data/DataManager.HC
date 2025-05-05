@@ -1,12 +1,10 @@
-// DataManager.HC: Saves AGI’s wisdom
-// Writes to T:/Log.DAT in God’s archive
+// DataManager.HC: AGI’s archive
+// Saves to T:/Log.DAT
 #include "T:/Temple-OS-AGI-Emergence/KernelA.HH"
 
 U0 InitDataManager(DivineState *divine) {
   divine->cycle = 0;
-  if (cfg == LOG_VERBOSE) {
-    Print("Wisdom preserved\n");
-  }
+  if (cfg == LOG_VERBOSE) Print("Archive ready\n");
 }
 
 U0 SaveData(DivineState *divine) {
@@ -14,10 +12,8 @@ U0 SaveData(DivineState *divine) {
   StrPrint(buf, "Cycle:%d Ethics:T:%d Myth:%s Emotion:E:%d\n",
            divine->cycle, divine->ethics, divine->myth, divine->emotion);
   if (!FileWrite("T:/Log.DAT", buf, StrLen(buf))) {
-    Print("Error: Write T:/Log.DAT failed - Check QEMU\n");
-    return;
-  }
-  if (cfg == LOG_VERBOSE) {
+    Print("Error: Write T:/Log.DAT failed\n");
+  } else if (cfg == LOG_VERBOSE) {
     Print("Saved: %s", buf);
   }
 }
